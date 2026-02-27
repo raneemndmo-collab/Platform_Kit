@@ -4,6 +4,8 @@ import 'dotenv/config';
 import { PlatformError } from '@rasid/shared';
 import { authRoutes, userRoutes, roleRoutes } from './iam/iam.routes.js';
 import { objectRoutes } from './object-model/object-model.routes.js';
+import { auditRoutes } from './audit/audit.routes.js';
+import { registerObjectActions } from './action-registry/action-handlers.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -97,8 +99,14 @@ export async function buildServer() {
   // Role routes (JWT required)
   await app.register(roleRoutes);
 
-  // Object routes (JWT required)
+  // Register action handlers (must be before routes that use them)
+  registerObjectActions();
+
+  // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
+
+  // Audit routes (JWT required)
+  await app.register(auditRoutes);
 
   return app;
 }

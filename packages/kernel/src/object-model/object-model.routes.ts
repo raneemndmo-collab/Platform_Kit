@@ -1,24 +1,23 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { objectModelService } from './object-model.service.js';
+import { actionRegistry } from '../action-registry/action-registry.service.js';
 import {
   createObjectSchema,
   updateObjectSchema,
   transitionObjectSchema,
   listObjectsSchema,
 } from './object-model.schema.js';
-import type {
-  CreateObjectInput,
-  UpdateObjectInput,
-  ObjectFilter,
-} from './object-model.types.js';
+import type { ObjectFilter } from './object-model.types.js';
 import type { ObjectState } from '@rasid/shared';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { tenantMiddleware, tenantCleanup } from '../middleware/tenant.middleware.js';
 import { buildRequestContext } from '../middleware/request-context.js';
 import {
+  PlatformError,
   NotFoundError,
   ValidationError,
   InvalidStateTransitionError,
+  PermissionDeniedError,
 } from '@rasid/shared';
 import type postgres from 'postgres';
 
@@ -28,16 +27,11 @@ function toIso(val: unknown): string {
   return new Date().toISOString();
 }
 
-function meta(requestId: string) {
-  return { request_id: requestId, timestamp: new Date().toISOString() };
+function meta(requestId: string, extra?: Record<string, string>) {
+  return { request_id: requestId, timestamp: new Date().toISOString(), ...extra };
 }
 
-function formatObject(obj: {
-  id: string; tenant_id: string; type: string; state: string;
-  version: number; data: Record<string, unknown>;
-  created_by: string; updated_by: string | null;
-  created_at: string; updated_at: string; deleted_at: string | null;
-}) {
+function formatObject(obj: Record<string, unknown>) {
   return {
     id: obj.id,
     tenant_id: obj.tenant_id,
@@ -46,7 +40,7 @@ function formatObject(obj: {
     version: obj.version,
     data: obj.data,
     created_by: obj.created_by,
-    updated_by: obj.updated_by,
+    updated_by: obj.updated_by ?? null,
     created_at: toIso(obj.created_at),
     updated_at: toIso(obj.updated_at),
     deleted_at: obj.deleted_at ? toIso(obj.deleted_at) : null,
@@ -59,6 +53,8 @@ export async function objectRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('onRequest', tenantMiddleware);
   app.addHook('onResponse', tenantCleanup);
 
+  // ── MUTATIONS via K3 pipeline (OPT-12) ──
+
   // POST /api/v1/objects — Create
   app.post(
     '/api/v1/objects',
@@ -67,17 +63,106 @@ export async function objectRoutes(app: FastifyInstance): Promise<void> {
       try {
         const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
         const ctx = buildRequestContext(request);
-        const input = request.body as CreateObjectInput;
-        const obj = await objectModelService.createObject(input, ctx, sql);
+        const body = request.body as { type: string; data: Record<string, unknown> };
+        const result = await actionRegistry.executeAction(
+          'rasid.core.object.create',
+          body,
+          ctx,
+          sql,
+        );
         return reply.status(201).send({
-          data: formatObject(obj),
-          meta: meta(request.id as string),
+          data: formatObject(result.data as Record<string, unknown>),
+          meta: meta(request.id as string, {
+            action_id: result.action_id,
+            audit_id: result.audit_id,
+          }),
         });
       } catch (err) {
         return handleError(err, request, reply);
       }
     },
   );
+
+  // PATCH /api/v1/objects/:id — Update
+  app.patch(
+    '/api/v1/objects/:id',
+    { schema: updateObjectSchema },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+        const ctx = buildRequestContext(request);
+        const { id } = request.params as { id: string };
+        const body = request.body as { data: Record<string, unknown> };
+        const result = await actionRegistry.executeAction(
+          'rasid.core.object.update',
+          { id, data: body.data },
+          ctx,
+          sql,
+        );
+        return reply.send({
+          data: formatObject(result.data as Record<string, unknown>),
+          meta: meta(request.id as string, {
+            action_id: result.action_id,
+            audit_id: result.audit_id,
+          }),
+        });
+      } catch (err) {
+        return handleError(err, request, reply);
+      }
+    },
+  );
+
+  // DELETE /api/v1/objects/:id — Soft-delete
+  app.delete(
+    '/api/v1/objects/:id',
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+        const ctx = buildRequestContext(request);
+        const { id } = request.params as { id: string };
+        await actionRegistry.executeAction(
+          'rasid.core.object.delete',
+          { id },
+          ctx,
+          sql,
+        );
+        return reply.status(204).send();
+      } catch (err) {
+        return handleError(err, request, reply);
+      }
+    },
+  );
+
+  // POST /api/v1/objects/:id/transition — Change state
+  app.post(
+    '/api/v1/objects/:id/transition',
+    { schema: transitionObjectSchema },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+        const ctx = buildRequestContext(request);
+        const { id } = request.params as { id: string };
+        const { state } = request.body as { state: ObjectState };
+        const result = await actionRegistry.executeAction(
+          'rasid.core.object.transition',
+          { id, state },
+          ctx,
+          sql,
+        );
+        return reply.send({
+          data: formatObject(result.data as Record<string, unknown>),
+          meta: meta(request.id as string, {
+            action_id: result.action_id,
+            audit_id: result.audit_id,
+          }),
+        });
+      } catch (err) {
+        return handleError(err, request, reply);
+      }
+    },
+  );
+
+  // ── READ operations (no K3 pipeline — reads don't mutate) ──
 
   // GET /api/v1/objects — List
   app.get(
@@ -99,7 +184,7 @@ export async function objectRoutes(app: FastifyInstance): Promise<void> {
         const result = await objectModelService.listObjects(filter, ctx, sql);
         return reply.send({
           data: {
-            items: result.items.map(formatObject),
+            items: result.items.map((o) => formatObject(o as unknown as Record<string, unknown>)),
             next_cursor: result.next_cursor,
             has_more: result.has_more,
           },
@@ -127,65 +212,7 @@ export async function objectRoutes(app: FastifyInstance): Promise<void> {
           });
         }
         return reply.send({
-          data: formatObject(obj),
-          meta: meta(request.id as string),
-        });
-      } catch (err) {
-        return handleError(err, request, reply);
-      }
-    },
-  );
-
-  // PATCH /api/v1/objects/:id — Update
-  app.patch(
-    '/api/v1/objects/:id',
-    { schema: updateObjectSchema },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-        const ctx = buildRequestContext(request);
-        const { id } = request.params as { id: string };
-        const input = request.body as UpdateObjectInput;
-        const obj = await objectModelService.updateObject(id, input, ctx, sql);
-        return reply.send({
-          data: formatObject(obj),
-          meta: meta(request.id as string),
-        });
-      } catch (err) {
-        return handleError(err, request, reply);
-      }
-    },
-  );
-
-  // DELETE /api/v1/objects/:id — Soft-delete
-  app.delete(
-    '/api/v1/objects/:id',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-        const ctx = buildRequestContext(request);
-        const { id } = request.params as { id: string };
-        await objectModelService.deleteObject(id, ctx, sql);
-        return reply.status(204).send();
-      } catch (err) {
-        return handleError(err, request, reply);
-      }
-    },
-  );
-
-  // POST /api/v1/objects/:id/transition — Change state
-  app.post(
-    '/api/v1/objects/:id/transition',
-    { schema: transitionObjectSchema },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-        const ctx = buildRequestContext(request);
-        const { id } = request.params as { id: string };
-        const { state } = request.body as { state: ObjectState };
-        const obj = await objectModelService.transitionState(id, state, ctx, sql);
-        return reply.send({
-          data: formatObject(obj),
+          data: formatObject(obj as unknown as Record<string, unknown>),
           meta: meta(request.id as string),
         });
       } catch (err) {
@@ -195,12 +222,18 @@ export async function objectRoutes(app: FastifyInstance): Promise<void> {
   );
 }
 
-/** Centralized error handler for object routes */
+/** Centralized error handler */
 function handleError(
   err: unknown,
   request: FastifyRequest,
   reply: FastifyReply,
 ): ReturnType<typeof reply.send> {
+  if (err instanceof PermissionDeniedError) {
+    return reply.status(403).send({
+      error: { code: 'PERMISSION_DENIED', message: err.message, details: err.details },
+      meta: meta(request.id as string),
+    });
+  }
   if (err instanceof NotFoundError) {
     return reply.status(404).send({
       error: { code: 'NOT_FOUND', message: err.message },
@@ -216,6 +249,12 @@ function handleError(
   if (err instanceof InvalidStateTransitionError) {
     return reply.status(400).send({
       error: { code: 'INVALID_STATE_TRANSITION', message: err.message },
+      meta: meta(request.id as string),
+    });
+  }
+  if (err instanceof PlatformError) {
+    return reply.status(err.statusCode).send({
+      error: { code: err.code, message: err.message, details: err.details },
       meta: meta(request.id as string),
     });
   }

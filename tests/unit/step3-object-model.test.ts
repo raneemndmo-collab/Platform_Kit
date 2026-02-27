@@ -2,34 +2,12 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { buildServer } from '../../packages/kernel/src/server.js';
 import { adminSql } from '../../packages/kernel/src/db/connection.js';
 import { v7 as uuidv7 } from 'uuid';
-import bcrypt from 'bcrypt';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
 let tenantId: string;
 let accessToken: string;
 let userId: string;
-
-/** Register the test object type via adminSql (global table, no RLS) */
-async function registerTestType(): Promise<void> {
-  await adminSql`
-    INSERT INTO kernel.object_types (name, display_name, module_id, json_schema)
-    VALUES (
-      'rasid.core.test',
-      'Test Object',
-      'kernel',
-      ${JSON.stringify({
-        type: 'object',
-        required: ['name'],
-        properties: {
-          name: { type: 'string' },
-          value: { type: 'number' },
-        },
-      })}
-    )
-    ON CONFLICT (name) DO NOTHING
-  `;
-}
 
 beforeAll(async () => {
   // Clean all tables
@@ -48,16 +26,44 @@ beforeAll(async () => {
   tenantId = uuidv7();
   await adminSql`INSERT INTO kernel.tenants (id, name, slug) VALUES (${tenantId}, 'Acme', 'acme')`;
 
-  // Create system roles
-  const roleIds: Record<string, string> = {};
-  for (const name of ['super_admin', 'admin', 'editor', 'viewer']) {
+  // Create permissions
+  const perms = [
+    ['users', 'create'], ['users', 'read'], ['users', 'update'], ['users', 'delete'],
+    ['roles', 'create'], ['roles', 'read'], ['roles', 'update'], ['roles', 'delete'], ['roles', 'assign'],
+    ['permissions', 'assign'],
+    ['objects', 'create'], ['objects', 'read'], ['objects', 'update'], ['objects', 'delete'],
+    ['audit', 'read'],
+  ];
+  const permIds: Record<string, string> = {};
+  for (const [resource, action] of perms) {
     const id = uuidv7();
-    roleIds[name] = id;
+    permIds[`${resource}.${action}`] = id;
+    await adminSql`INSERT INTO kernel.permissions (id, resource, action) VALUES (${id}, ${resource}, ${action})`;
+  }
+
+  // Create system roles
+  const superAdminId = uuidv7();
+  await adminSql`INSERT INTO kernel.roles (id, tenant_id, name, is_system) VALUES (${superAdminId}, ${tenantId}, 'super_admin', true)`;
+  for (const name of ['admin', 'editor', 'viewer']) {
+    const id = uuidv7();
     await adminSql`INSERT INTO kernel.roles (id, tenant_id, name, is_system) VALUES (${id}, ${tenantId}, ${name}, true)`;
   }
 
+  // Assign ALL permissions to super_admin
+  for (const [, permId] of Object.entries(permIds)) {
+    await adminSql`INSERT INTO kernel.role_permissions (role_id, permission_id, tenant_id) VALUES (${superAdminId}, ${permId}, ${tenantId})`;
+  }
+
   // Register test object type
-  await registerTestType();
+  await adminSql`
+    INSERT INTO kernel.object_types (name, display_name, module_id, json_schema)
+    VALUES ('rasid.core.test', 'Test Object', 'kernel', ${JSON.stringify({
+      type: 'object',
+      required: ['name'],
+      properties: { name: { type: 'string' }, value: { type: 'number' } },
+    })})
+    ON CONFLICT (name) DO NOTHING
+  `;
 
   // Build server
   app = await buildServer();
@@ -65,24 +71,22 @@ beforeAll(async () => {
 
   // Register user
   const regRes = await app.inject({
-    method: 'POST',
-    url: '/api/v1/auth/register',
+    method: 'POST', url: '/api/v1/auth/register',
     payload: { email: 'admin@acme.com', password: 'Admin123!', display_name: 'Admin', tenant_slug: 'acme' },
   });
   expect(regRes.statusCode).toBe(201);
   userId = regRes.json().data.user.id;
 
-  // Assign super_admin
+  // Assign super_admin role
   await adminSql`
     INSERT INTO kernel.user_roles (user_id, role_id, tenant_id, assigned_by)
-    VALUES (${userId}, ${roleIds.super_admin}, ${tenantId}, ${userId})
+    VALUES (${userId}, ${superAdminId}, ${tenantId}, ${userId})
     ON CONFLICT DO NOTHING
   `;
 
   // Login
   const loginRes = await app.inject({
-    method: 'POST',
-    url: '/api/v1/auth/login',
+    method: 'POST', url: '/api/v1/auth/login',
     payload: { email: 'admin@acme.com', password: 'Admin123!', tenant_slug: 'acme' },
   });
   expect(loginRes.statusCode).toBe(200);
@@ -98,8 +102,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('POST /api/v1/objects — creates object in draft state', async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: '/api/v1/objects',
+      method: 'POST', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { type: 'rasid.core.test', data: { name: 'Test Object', value: 42 } },
     });
@@ -115,8 +118,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('GET /api/v1/objects/:id — returns the object', async () => {
     const res = await app.inject({
-      method: 'GET',
-      url: `/api/v1/objects/${objectId}`,
+      method: 'GET', url: `/api/v1/objects/${objectId}`,
       headers: { authorization: `Bearer ${accessToken}` },
     });
     expect(res.statusCode).toBe(200);
@@ -125,8 +127,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('PATCH /api/v1/objects/:id — updates data and increments version', async () => {
     const res = await app.inject({
-      method: 'PATCH',
-      url: `/api/v1/objects/${objectId}`,
+      method: 'PATCH', url: `/api/v1/objects/${objectId}`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { data: { name: 'Updated Object', value: 99 } },
     });
@@ -139,8 +140,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('GET /api/v1/objects — lists objects', async () => {
     const res = await app.inject({
-      method: 'GET',
-      url: '/api/v1/objects',
+      method: 'GET', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
     });
     expect(res.statusCode).toBe(200);
@@ -150,8 +150,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('GET /api/v1/objects?type=rasid.core.test — filters by type', async () => {
     const res = await app.inject({
-      method: 'GET',
-      url: '/api/v1/objects?type=rasid.core.test',
+      method: 'GET', url: '/api/v1/objects?type=rasid.core.test',
       headers: { authorization: `Bearer ${accessToken}` },
     });
     expect(res.statusCode).toBe(200);
@@ -162,8 +161,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('GET /api/v1/objects?state=draft — filters by state', async () => {
     const res = await app.inject({
-      method: 'GET',
-      url: '/api/v1/objects?state=draft',
+      method: 'GET', url: '/api/v1/objects?state=draft',
       headers: { authorization: `Bearer ${accessToken}` },
     });
     expect(res.statusCode).toBe(200);
@@ -173,26 +171,23 @@ describe('K2 Object Model — CRUD', () => {
   });
 
   it('DELETE /api/v1/objects/:id — soft-deletes object', async () => {
-    // Create a new object to delete
     const createRes = await app.inject({
-      method: 'POST',
-      url: '/api/v1/objects',
+      method: 'POST', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { type: 'rasid.core.test', data: { name: 'To Delete' } },
     });
+    expect(createRes.statusCode).toBe(201);
     const delId = createRes.json().data.id;
 
     const res = await app.inject({
-      method: 'DELETE',
-      url: `/api/v1/objects/${delId}`,
+      method: 'DELETE', url: `/api/v1/objects/${delId}`,
       headers: { authorization: `Bearer ${accessToken}` },
     });
     expect(res.statusCode).toBe(204);
 
     // Verify it's gone from GET
     const getRes = await app.inject({
-      method: 'GET',
-      url: `/api/v1/objects/${delId}`,
+      method: 'GET', url: `/api/v1/objects/${delId}`,
       headers: { authorization: `Bearer ${accessToken}` },
     });
     expect(getRes.statusCode).toBe(404);
@@ -200,8 +195,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('POST /api/v1/objects — unregistered type returns 404', async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: '/api/v1/objects',
+      method: 'POST', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { type: 'nonexistent.type', data: { name: 'x' } },
     });
@@ -210,8 +204,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('POST /api/v1/objects — missing required field returns 400', async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: '/api/v1/objects',
+      method: 'POST', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { type: 'rasid.core.test', data: { value: 1 } },
     });
@@ -220,8 +213,7 @@ describe('K2 Object Model — CRUD', () => {
 
   it('GET /api/v1/objects — no auth returns 401', async () => {
     const res = await app.inject({
-      method: 'GET',
-      url: '/api/v1/objects',
+      method: 'GET', url: '/api/v1/objects',
     });
     expect(res.statusCode).toBe(401);
   });
@@ -232,18 +224,17 @@ describe('K2 Object Model — Lifecycle Transitions', () => {
 
   beforeAll(async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: '/api/v1/objects',
+      method: 'POST', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { type: 'rasid.core.test', data: { name: 'Lifecycle Test' } },
     });
+    expect(res.statusCode).toBe(201);
     objectId = res.json().data.id;
   });
 
   it('draft → active', async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: `/api/v1/objects/${objectId}/transition`,
+      method: 'POST', url: `/api/v1/objects/${objectId}/transition`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { state: 'active' },
     });
@@ -253,8 +244,7 @@ describe('K2 Object Model — Lifecycle Transitions', () => {
 
   it('active → archived', async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: `/api/v1/objects/${objectId}/transition`,
+      method: 'POST', url: `/api/v1/objects/${objectId}/transition`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { state: 'archived' },
     });
@@ -264,8 +254,7 @@ describe('K2 Object Model — Lifecycle Transitions', () => {
 
   it('archived → active (restore)', async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: `/api/v1/objects/${objectId}/transition`,
+      method: 'POST', url: `/api/v1/objects/${objectId}/transition`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { state: 'active' },
     });
@@ -275,8 +264,7 @@ describe('K2 Object Model — Lifecycle Transitions', () => {
 
   it('active → deleted', async () => {
     const res = await app.inject({
-      method: 'POST',
-      url: `/api/v1/objects/${objectId}/transition`,
+      method: 'POST', url: `/api/v1/objects/${objectId}/transition`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { state: 'deleted' },
     });
@@ -285,47 +273,39 @@ describe('K2 Object Model — Lifecycle Transitions', () => {
   });
 
   it('deleted → active is INVALID', async () => {
-    // Object is now deleted (soft-deleted with deleted_at), so GET returns 404
-    // We need to use a fresh object for this test
     const createRes = await app.inject({
-      method: 'POST',
-      url: '/api/v1/objects',
+      method: 'POST', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { type: 'rasid.core.test', data: { name: 'Delete Test' } },
     });
+    expect(createRes.statusCode).toBe(201);
     const id = createRes.json().data.id;
 
-    // Transition to deleted via transition endpoint
     await app.inject({
-      method: 'POST',
-      url: `/api/v1/objects/${id}/transition`,
+      method: 'POST', url: `/api/v1/objects/${id}/transition`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { state: 'deleted' },
     });
 
-    // Now try deleted → active (should fail with 404 since deleted_at is set)
     const res = await app.inject({
-      method: 'POST',
-      url: `/api/v1/objects/${id}/transition`,
+      method: 'POST', url: `/api/v1/objects/${id}/transition`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { state: 'active' },
     });
-    // Object is soft-deleted, so it returns 404
     expect(res.statusCode).toBe(404);
   });
 
   it('draft → archived is INVALID', async () => {
     const createRes = await app.inject({
-      method: 'POST',
-      url: '/api/v1/objects',
+      method: 'POST', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { type: 'rasid.core.test', data: { name: 'Invalid Transition' } },
     });
+    expect(createRes.statusCode).toBe(201);
     const id = createRes.json().data.id;
 
     const res = await app.inject({
-      method: 'POST',
-      url: `/api/v1/objects/${id}/transition`,
+      method: 'POST', url: `/api/v1/objects/${id}/transition`,
       headers: { authorization: `Bearer ${accessToken}` },
       payload: { state: 'archived' },
     });
@@ -336,34 +316,25 @@ describe('K2 Object Model — Lifecycle Transitions', () => {
 
 describe('K2 Object Model — Tenant Isolation', () => {
   it('Tenant B cannot see Tenant A objects', async () => {
-    // Create tenant B
     const tenantBId = uuidv7();
     await adminSql`INSERT INTO kernel.tenants (id, name, slug) VALUES (${tenantBId}, 'Beta', 'beta')`;
-
-    // Create roles for tenant B
     const viewerRoleId = uuidv7();
     await adminSql`INSERT INTO kernel.roles (id, tenant_id, name, is_system) VALUES (${viewerRoleId}, ${tenantBId}, 'viewer', true)`;
 
-    // Register user in tenant B
     const regRes = await app.inject({
-      method: 'POST',
-      url: '/api/v1/auth/register',
+      method: 'POST', url: '/api/v1/auth/register',
       payload: { email: 'user@beta.com', password: 'User123!', display_name: 'Beta User', tenant_slug: 'beta' },
     });
     expect(regRes.statusCode).toBe(201);
 
-    // Login as Beta user
     const loginRes = await app.inject({
-      method: 'POST',
-      url: '/api/v1/auth/login',
+      method: 'POST', url: '/api/v1/auth/login',
       payload: { email: 'user@beta.com', password: 'User123!', tenant_slug: 'beta' },
     });
     const betaToken = loginRes.json().data.token.access_token;
 
-    // Try to list objects — should see zero (Acme objects hidden by RLS)
     const res = await app.inject({
-      method: 'GET',
-      url: '/api/v1/objects',
+      method: 'GET', url: '/api/v1/objects',
       headers: { authorization: `Bearer ${betaToken}` },
     });
     expect(res.statusCode).toBe(200);

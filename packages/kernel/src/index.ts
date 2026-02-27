@@ -54,3 +54,24 @@ export type {
   PlatformObject,
 } from './object-model/object-model.types.js';
 export { ALLOWED_TRANSITIONS } from './object-model/object-model.types.js';
+
+// K3 — Action Registry interfaces
+export type { IActionRegistry } from './action-registry/action-registry.interface.js';
+export type {
+  ActionManifest,
+  ActionHandler,
+  ActionHandlerResult,
+  ActionResult,
+} from './action-registry/action-registry.types.js';
+
+// K4 — Policy Engine interfaces
+export type { IPolicyEngine } from './policy/policy.interface.js';
+export type { PolicyRequest, PolicyDecision } from './policy/policy.types.js';
+
+// K5 — Event Bus interfaces
+export type { IEventBus } from './event-bus/event-bus.interface.js';
+export type { PlatformEvent, EventHandler } from './event-bus/event-bus.types.js';
+
+// K6 — Audit Engine interfaces
+export type { IAuditEngine } from './audit/audit.interface.js';
+export type { AuditEntry, AuditRecord, AuditQuery } from './audit/audit.types.js';
