@@ -21,6 +21,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/uuid": "^10.0.0",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.6.1",
     "drizzle-kit": "^0.31.9",
     "postgres": "^3.4.8",

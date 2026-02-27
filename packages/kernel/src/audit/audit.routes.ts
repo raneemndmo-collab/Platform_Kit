@@ -74,7 +74,7 @@ export async function auditRoutes(app: FastifyInstance): Promise<void> {
         const ctx = buildRequestContext(request);
         const { objectId } = request.params as { objectId: string };
         const records = await auditService.getByObjectId(objectId, ctx.tenantId);
-        return reply.send({ data: records, meta: meta(request.id as string) });
+        return reply.send({ data: { items: records }, meta: meta(request.id as string) });
       } catch (err) {
         request.log.error(err);
         return reply.status(500).send({

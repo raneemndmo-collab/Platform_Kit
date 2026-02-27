@@ -226,7 +226,7 @@ describe('K3 Pipeline — Admin (all permissions)', () => {
       method: 'GET', url: `/api/v1/audit/object/${objectId}`,
       headers: { authorization: `Bearer ${adminToken}` },
     });
-    const records = auditRes.json().data;
+    const records = auditRes.json().data.items;
     const updateAudit = records.find((r: { action_id: string }) => r.action_id === 'rasid.core.object.update');
     expect(updateAudit).toBeTruthy();
     expect(updateAudit.payload_before).toBeTruthy();
@@ -268,7 +268,7 @@ describe('K3 Pipeline — Admin (all permissions)', () => {
       method: 'GET', url: `/api/v1/audit/object/${delId}`,
       headers: { authorization: `Bearer ${adminToken}` },
     });
-    const deleteAudit = auditRes.json().data.find(
+    const deleteAudit = auditRes.json().data.items.find(
       (r: { action_id: string }) => r.action_id === 'rasid.core.object.delete',
     );
     expect(deleteAudit).toBeTruthy();

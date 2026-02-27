@@ -10,6 +10,16 @@ export default defineConfig({
     testTimeout: 30000,
     hookTimeout: 30000,
     fileParallelism: false,
+    sequence: {
+      files: [
+        'tests/unit/step2-iam.test.ts',
+        'tests/unit/step4-pipeline.test.ts',
+        'tests/unit/step3-object-model.test.ts',
+        'tests/unit/step1-setup.test.ts',
+        'tests/integration/p0-primary.test.ts',
+        'tests/integration/p0-secondary.test.ts',
+      ],
+    },
   },
   resolve: {
     alias: {

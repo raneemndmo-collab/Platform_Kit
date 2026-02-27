@@ -43,10 +43,11 @@ function meta(requestId: string, extra?: Record<string, string>) {
   };
 }
 
+const isTest = process.env.NODE_ENV === 'test';
 const authRateLimit = {
   config: {
     rateLimit: {
-      max: 10,
+      max: isTest ? 1000 : 10,
       timeWindow: '1 minute',
     },
   },

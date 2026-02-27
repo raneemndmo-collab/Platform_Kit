@@ -10,7 +10,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:seed": "tsx ../../scripts/seed.ts",
+    "db:seed": "tsx --env-file=../../.env ../../scripts/seed.ts",
     "db:reset": "tsx ../../scripts/reset-db.ts"
   },
   "dependencies": {
