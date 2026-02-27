@@ -1,0 +1,28 @@
+{
+  "name": "rasid-platform",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @rasid/kernel dev",
+    "build": "pnpm --filter @rasid/kernel build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "pnpm --filter @rasid/kernel db:migrate",
+    "db:seed": "pnpm --filter @rasid/kernel db:seed",
+    "db:reset": "pnpm --filter @rasid/kernel db:reset",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.6.1",
+    "drizzle-kit": "^0.31.9",
+    "postgres": "^3.4.8",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
