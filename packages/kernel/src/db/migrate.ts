@@ -197,8 +197,8 @@ async function migrate(): Promise<void> {
     await sql.unsafe(`GRANT UPDATE ON kernel.${table} TO rasid_app`);
   }
 
-  // DELETE on junction tables only
-  const deletableTables = ['role_permissions', 'user_roles'];
+  // DELETE on junction tables and roles (for custom role deletion)
+  const deletableTables = ['role_permissions', 'user_roles', 'roles'];
   for (const table of deletableTables) {
     await sql.unsafe(`GRANT DELETE ON kernel.${table} TO rasid_app`);
   }

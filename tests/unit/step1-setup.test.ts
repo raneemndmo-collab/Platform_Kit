@@ -4,7 +4,7 @@ import { buildServer } from '../../packages/kernel/src/server.js';
 
 describe('STEP 1 — Repository Setup Verification', () => {
   it('health endpoint returns ok', async () => {
-    const app = buildServer();
+    const app = await buildServer();
     const response = await app.inject({
       method: 'GET',
       url: '/api/v1/health',

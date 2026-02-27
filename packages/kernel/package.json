@@ -14,14 +14,15 @@
     "db:reset": "tsx ../../scripts/reset-db.ts"
   },
   "dependencies": {
-    "@rasid/shared": "workspace:*",
-    "fastify": "^5.2.1",
+    "@fastify/rate-limit": "^10.3.0",
     "@fastify/sensible": "^6.0.3",
-    "drizzle-orm": "^0.38.4",
-    "postgres": "^3.4.5",
-    "dotenv": "^16.4.7",
+    "@rasid/shared": "workspace:*",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.38.4",
+    "fastify": "^5.2.1",
     "jsonwebtoken": "^9.0.2",
+    "postgres": "^3.4.5",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },

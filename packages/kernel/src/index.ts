@@ -28,3 +28,18 @@ export {
   ConflictError,
   InvalidStateTransitionError,
 } from '@rasid/shared';
+
+// K1 — IAM interfaces
+export type { IIamService } from './iam/iam.interface.js';
+export type {
+  RegisterInput,
+  LoginInput,
+  TokenPair,
+  User,
+  Role,
+  Permission,
+  UpdateUserInput,
+  CreateRoleInput,
+  UpdateRoleInput,
+  RoleAssignInput,
+} from './iam/iam.types.js';
