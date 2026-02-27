@@ -3,6 +3,7 @@ import rateLimit from '@fastify/rate-limit';
 import 'dotenv/config';
 import { PlatformError } from '@rasid/shared';
 import { authRoutes, userRoutes, roleRoutes } from './iam/iam.routes.js';
+import { objectRoutes } from './object-model/object-model.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -95,6 +96,9 @@ export async function buildServer() {
 
   // Role routes (JWT required)
   await app.register(roleRoutes);
+
+  // Object routes (JWT required)
+  await app.register(objectRoutes);
 
   return app;
 }

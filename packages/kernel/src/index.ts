@@ -43,3 +43,14 @@ export type {
   UpdateRoleInput,
   RoleAssignInput,
 } from './iam/iam.types.js';
+
+// K2 — Object Model interfaces
+export type { IObjectModelService } from './object-model/object-model.interface.js';
+export type {
+  ObjectTypeManifest,
+  CreateObjectInput,
+  UpdateObjectInput,
+  ObjectFilter,
+  PlatformObject,
+} from './object-model/object-model.types.js';
+export { ALLOWED_TRANSITIONS } from './object-model/object-model.types.js';

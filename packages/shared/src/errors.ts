@@ -48,8 +48,8 @@ export class ConflictError extends PlatformError {
 }
 
 export class InvalidStateTransitionError extends PlatformError {
-  constructor(from: string, to: string) {
-    super('INVALID_STATE_TRANSITION', `Invalid state transition from '${from}' to '${to}'`, 400, { from, to });
+  constructor(message: string, details?: Record<string, unknown>) {
+    super('INVALID_STATE_TRANSITION', message, 400, details);
     this.name = 'InvalidStateTransitionError';
   }
 }
