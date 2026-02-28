@@ -11,6 +11,9 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM mod_search.search_analytics`;
+  await adminSql`DELETE FROM mod_search.search_synonyms`;
+  await adminSql`DELETE FROM mod_search.search_index`;
   await adminSql`DELETE FROM mod_semantic.kpi_versions`;
   await adminSql`DELETE FROM mod_semantic.relationships`;
   await adminSql`DELETE FROM mod_semantic.facts`;

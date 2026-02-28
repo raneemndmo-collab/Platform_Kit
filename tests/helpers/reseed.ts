@@ -10,6 +10,9 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_search.search_analytics`;
+  await adminSql`DELETE FROM mod_search.search_synonyms`;
+  await adminSql`DELETE FROM mod_search.search_index`;
   await adminSql`DELETE FROM mod_semantic.kpi_versions`;
   await adminSql`DELETE FROM mod_semantic.relationships`;
   await adminSql`DELETE FROM mod_semantic.facts`;
@@ -71,6 +74,9 @@ export async function reseed(): Promise<void> {
     ['semantic_facts', 'create'], ['semantic_facts', 'delete'],
     ['semantic_relationships', 'create'], ['semantic_relationships', 'delete'],
     ['semantic_kpis', 'create'], ['semantic_kpis', 'read'], ['semantic_kpis', 'update'], ['semantic_kpis', 'approve'], ['semantic_kpis', 'deprecate'], ['semantic_kpis', 'preview'],
+    ['search_index', 'create'], ['search_index', 'read'], ['search_index', 'delete'], ['search_index', 'reindex'],
+    ['search_synonyms', 'create'], ['search_synonyms', 'read'], ['search_synonyms', 'update'], ['search_synonyms', 'delete'],
+    ['search_analytics', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
