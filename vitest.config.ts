@@ -18,6 +18,7 @@ export default defineConfig({
         'tests/integration/p0-primary.test.ts',
         'tests/integration/p0-secondary.test.ts',
         'tests/unit/step6-lineage.test.ts',
+        'tests/unit/step7-semantic-layer.test.ts',
         'tests/unit/step1-setup.test.ts',
       ],
     },

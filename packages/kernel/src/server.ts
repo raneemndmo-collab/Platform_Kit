@@ -6,6 +6,7 @@ import { authRoutes, userRoutes, roleRoutes } from './iam/iam.routes.js';
 import { objectRoutes } from './object-model/object-model.routes.js';
 import { auditRoutes } from './audit/audit.routes.js';
 import { lineageRoutes } from './lineage/lineage.routes.js';
+import { semanticLayerRoutes } from './semantic-layer/semantic-layer.routes.js';
 import { registerObjectActions } from './action-registry/action-handlers.js';
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -111,6 +112,9 @@ export async function buildServer() {
 
   // Lineage routes (JWT required)
   await app.register(lineageRoutes);
+
+  // Semantic Data Layer routes (JWT required)
+  await app.register(semanticLayerRoutes);
 
   return app;
 }

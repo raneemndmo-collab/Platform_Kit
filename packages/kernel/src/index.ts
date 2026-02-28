@@ -86,3 +86,22 @@ export type {
   ImpactReport,
   TraversalOptions,
 } from './lineage/lineage.types.js';
+
+// K8 — Semantic Data Layer interfaces
+export type { ISemanticLayer } from './semantic-layer/semantic-layer.interface.js';
+export type {
+  Dataset,
+  DatasetField,
+  Metric,
+  RegisterDatasetInput,
+  UpdateDatasetInput,
+  DefineMetricInput,
+  SemanticQueryInput,
+  QueryFilter,
+  DatasetSchema,
+  ResultSet,
+  SourceType,
+  DatasetStatus,
+  FieldDataType,
+  AggregationType,
+} from './semantic-layer/semantic-layer.types.js';

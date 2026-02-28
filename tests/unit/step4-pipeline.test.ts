@@ -15,6 +15,10 @@ let viewerUserId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM kernel.metrics`;
+  await adminSql`DELETE FROM kernel.dataset_fields`;
+  await adminSql`DELETE FROM kernel.datasets`;
+  await adminSql`DELETE FROM kernel.lineage_edges`;
   await adminSql`DELETE FROM kernel.user_roles`;
   await adminSql`DELETE FROM kernel.role_permissions`;
   await adminSql`DELETE FROM kernel.audit_log`;

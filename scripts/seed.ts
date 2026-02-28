@@ -14,6 +14,9 @@ async function seed(): Promise<void> {
   console.log('[seed] Starting...');
 
   // ── Clean existing data (reverse FK order) ──
+  await adminSql`DELETE FROM kernel.metrics`;
+  await adminSql`DELETE FROM kernel.dataset_fields`;
+  await adminSql`DELETE FROM kernel.datasets`;
   await adminSql`DELETE FROM kernel.lineage_edges`;
   await adminSql`DELETE FROM kernel.user_roles`;
   await adminSql`DELETE FROM kernel.role_permissions`;

@@ -38,7 +38,7 @@ describe('STEP 1 — Repository Setup Verification', () => {
     await sql.end();
   });
 
-  it('all 11 tables exist after migration', async () => {
+  it('all 14 tables exist after migration', async () => {
     const sql = postgres(process.env.DATABASE_ADMIN_URL!, { max: 1 });
     const result = await sql`
       SELECT table_name FROM information_schema.tables
@@ -57,11 +57,14 @@ describe('STEP 1 — Repository Setup Verification', () => {
     expect(tableNames).toContain('action_manifests');
     expect(tableNames).toContain('audit_log');
     expect(tableNames).toContain('lineage_edges');
-    expect(tableNames.length).toBe(11);
+    expect(tableNames).toContain('datasets');
+    expect(tableNames).toContain('dataset_fields');
+    expect(tableNames).toContain('metrics');
+    expect(tableNames.length).toBe(14);
     await sql.end();
   });
 
-  it('RLS enabled on 7 tenant-scoped tables', async () => {
+  it('RLS enabled on 10 tenant-scoped tables', async () => {
     const sql = postgres(process.env.DATABASE_ADMIN_URL!, { max: 1 });
     const result = await sql`
       SELECT tablename FROM pg_tables
@@ -76,7 +79,10 @@ describe('STEP 1 — Repository Setup Verification', () => {
     expect(rlsTables).toContain('objects');
     expect(rlsTables).toContain('audit_log');
     expect(rlsTables).toContain('lineage_edges');
-    expect(rlsTables.length).toBe(7);
+    expect(rlsTables).toContain('datasets');
+    expect(rlsTables).toContain('dataset_fields');
+    expect(rlsTables).toContain('metrics');
+    expect(rlsTables.length).toBe(10);
     await sql.end();
   });
 

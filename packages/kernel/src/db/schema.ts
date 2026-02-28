@@ -198,3 +198,71 @@ export const lineageEdges = kernelSchema.table(
     index('lineage_edges_target_idx').on(table.tenant_id, table.target_id),
   ],
 );
+
+// ─── K8 datasets (Phase 1 — Semantic Data Layer) ───
+export const datasets = kernelSchema.table(
+  'datasets',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    display_name: varchar('display_name', { length: 255 }).notNull(),
+    description: varchar('description', { length: 1000 }),
+    source_type: varchar('source_type', { length: 20 }).notNull(),
+    source_config: jsonb('source_config').notNull().default('{}'),
+    status: varchar('status', { length: 20 }).notNull().default('draft'),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('datasets_tenant_name_idx').on(table.tenant_id, table.name),
+    index('datasets_tenant_status_idx').on(table.tenant_id, table.status),
+  ],
+);
+
+// ─── K8 dataset_fields ───
+export const datasetFields = kernelSchema.table(
+  'dataset_fields',
+  {
+    id: uuid('id').primaryKey(),
+    dataset_id: uuid('dataset_id').notNull().references(() => datasets.id, { onDelete: 'cascade' }),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    display_name: varchar('display_name', { length: 255 }).notNull(),
+    data_type: varchar('data_type', { length: 20 }).notNull(),
+    is_dimension: boolean('is_dimension').notNull().default(false),
+    is_metric: boolean('is_metric').notNull().default(false),
+    expression: varchar('expression', { length: 1000 }),
+    description: varchar('description', { length: 1000 }),
+    ordinal: integer('ordinal').notNull().default(0),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('dataset_fields_dataset_name_idx').on(table.dataset_id, table.name),
+    index('dataset_fields_tenant_idx').on(table.tenant_id),
+  ],
+);
+
+// ─── K8 metrics ───
+export const metrics = kernelSchema.table(
+  'metrics',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    dataset_id: uuid('dataset_id').notNull().references(() => datasets.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 255 }).notNull(),
+    display_name: varchar('display_name', { length: 255 }).notNull(),
+    expression: varchar('expression', { length: 1000 }).notNull(),
+    aggregation: varchar('aggregation', { length: 20 }).notNull(),
+    dimensions: jsonb('dimensions').notNull().default('[]'),
+    description: varchar('description', { length: 1000 }),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('metrics_tenant_dataset_name_idx').on(table.tenant_id, table.dataset_id, table.name),
+    index('metrics_tenant_idx').on(table.tenant_id),
+  ],
+);
