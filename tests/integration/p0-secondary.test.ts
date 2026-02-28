@@ -12,12 +12,14 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { buildServer } from '../../packages/kernel/src/server.js';
 import { adminSql } from '../../packages/kernel/src/db/connection.js';
+import { reseed } from '../helpers/reseed.js';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
 let adminToken: string;
 
 beforeAll(async () => {
+  await reseed();
   await adminSql`DELETE FROM kernel.audit_log`;
   app = await buildServer();
   await app.ready();

@@ -21,15 +21,18 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { buildServer } from '../../packages/kernel/src/server.js';
 import { adminSql, appSql } from '../../packages/kernel/src/db/connection.js';
+import { reseed } from '../helpers/reseed.js';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
 let acmeAdminToken: string;
 let betaAdminToken: string;
-const acmeTenantId = '00000000-0000-0000-0000-000000000001';
-const betaTenantId = '00000000-0000-0000-0000-000000000002';
+// Tenant IDs are dynamic (from reseed), not needed directly in tests
 
 beforeAll(async () => {
+  // Reseed all data (step2 destroys seed data)
+  await reseed();
+
   app = await buildServer();
 
   // Clean lineage_edges

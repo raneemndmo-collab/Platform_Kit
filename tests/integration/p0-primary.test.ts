@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { buildServer } from '../../packages/kernel/src/server.js';
 import { adminSql } from '../../packages/kernel/src/db/connection.js';
+import { reseed } from '../helpers/reseed.js';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
@@ -15,7 +16,8 @@ let betaAdminToken: string;
 let objectId: string;
 
 beforeAll(async () => {
-  // Clean audit to start fresh
+  // Reseed all data (step2 destroys seed data with random UUIDs)
+  await reseed();
   await adminSql`DELETE FROM kernel.audit_log`;
 
   app = await buildServer();
@@ -42,7 +44,7 @@ beforeAll(async () => {
   });
   expect(betaLogin.statusCode).toBe(200);
   betaAdminToken = betaLogin.json().data.token.access_token;
-}, 15000);
+}, 30000);
 
 afterAll(async () => {
   await app.close();
