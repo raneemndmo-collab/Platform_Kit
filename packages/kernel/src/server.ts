@@ -21,6 +21,8 @@ import { registerSearchActions } from '../../modules/search/src/search.actions.j
 import { searchRoutes } from '../../modules/search/src/search.routes.js';
 import { registerDashboardActions } from '../../modules/dashboard/src/dashboard.actions.js';
 import { dashboardRoutes } from '../../modules/dashboard/src/dashboard.routes.js';
+import { registerFileManagerActions } from '../../modules/file-manager/src/file-manager.actions.js';
+import { fileManagerRoutes } from '../../modules/file-manager/src/file-manager.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -136,6 +138,7 @@ export async function buildServer() {
   registerSemanticActions();
   registerSearchActions();
   registerDashboardActions();
+  registerFileManagerActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -171,6 +174,11 @@ export async function buildServer() {
 
   // M9 — Dashboard Engine
   await app.register(dashboardRoutes);
+
+  // ── Phase 3 Modules ──
+
+  // M17 — File Manager
+  await app.register(fileManagerRoutes);
 
   return app;
 }

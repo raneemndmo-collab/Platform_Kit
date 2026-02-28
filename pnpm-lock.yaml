@@ -113,6 +113,15 @@ importers:
         specifier: ^3.23.0
         version: 3.25.76
 
+  packages/modules/file-manager:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
   packages/modules/search:
     dependencies:
       '@rasid/shared':

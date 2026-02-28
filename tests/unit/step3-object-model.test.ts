@@ -11,6 +11,8 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM mod_file_manager.files`;
+  await adminSql`DELETE FROM mod_file_manager.folders`;
   await adminSql`DELETE FROM mod_dashboard.shared_dashboards`;
   await adminSql`DELETE FROM mod_dashboard.widgets`;
   await adminSql`DELETE FROM mod_dashboard.dashboards`;
