@@ -10,6 +10,8 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_forms.submissions`;
+  await adminSql`DELETE FROM mod_forms.forms`;
   await adminSql`DELETE FROM mod_presentations.presentations`;
   await adminSql`DELETE FROM mod_custom_pages.pages`;
   await adminSql`DELETE FROM mod_reports.report_runs`;
@@ -98,6 +100,9 @@ export async function reseed(): Promise<void> {
     // M16 — Presentations
     ['presentations', 'create'], ['presentations', 'read'], ['presentations', 'update'], ['presentations', 'delete'], ['presentations', 'publish'],
     ['slides', 'create'], ['slides', 'read'], ['slides', 'update'], ['slides', 'delete'],
+    // M15 — Forms Builder
+    ['forms', 'create'], ['forms', 'read'], ['forms', 'update'], ['forms', 'delete'], ['forms', 'publish'],
+    ['submissions', 'create'], ['submissions', 'read'], ['submissions', 'delete'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

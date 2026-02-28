@@ -82,6 +82,9 @@ async function seed(): Promise<void> {
     // M16 — Presentations
     ['presentations', 'create'], ['presentations', 'read'], ['presentations', 'update'], ['presentations', 'delete'], ['presentations', 'publish'],
     ['slides', 'create'], ['slides', 'read'], ['slides', 'update'], ['slides', 'delete'],
+    // M15 — Forms Builder
+    ['forms', 'create'], ['forms', 'read'], ['forms', 'update'], ['forms', 'delete'], ['forms', 'publish'],
+    ['submissions', 'create'], ['submissions', 'read'], ['submissions', 'delete'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
