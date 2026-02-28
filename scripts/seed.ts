@@ -73,6 +73,9 @@ async function seed(): Promise<void> {
     // M17 — File Manager
     ['folders', 'create'], ['folders', 'read'], ['folders', 'update'], ['folders', 'delete'],
     ['files', 'create'], ['files', 'read'], ['files', 'update'], ['files', 'delete'],
+    // M10 — Reports Engine
+    ['reports', 'create'], ['reports', 'read'], ['reports', 'update'], ['reports', 'delete'], ['reports', 'publish'],
+    ['report_runs', 'execute'], ['report_runs', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

@@ -10,6 +10,8 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_reports.report_runs`;
+  await adminSql`DELETE FROM mod_reports.report_definitions`;
   await adminSql`DELETE FROM mod_file_manager.files`;
   await adminSql`DELETE FROM mod_file_manager.folders`;
   await adminSql`DELETE FROM mod_dashboard.shared_dashboards`;
@@ -86,6 +88,9 @@ export async function reseed(): Promise<void> {
     ['dashboard_widgets', 'create'], ['dashboard_widgets', 'read'], ['dashboard_widgets', 'update'], ['dashboard_widgets', 'delete'], ['dashboard_widgets', 'query'],
     ['folders', 'create'], ['folders', 'read'], ['folders', 'update'], ['folders', 'delete'],
     ['files', 'create'], ['files', 'read'], ['files', 'update'], ['files', 'delete'],
+    // M10 — Reports Engine
+    ['reports', 'create'], ['reports', 'read'], ['reports', 'update'], ['reports', 'delete'], ['reports', 'publish'],
+    ['report_runs', 'execute'], ['report_runs', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

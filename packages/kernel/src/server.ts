@@ -23,6 +23,8 @@ import { registerDashboardActions } from '../../modules/dashboard/src/dashboard.
 import { dashboardRoutes } from '../../modules/dashboard/src/dashboard.routes.js';
 import { registerFileManagerActions } from '../../modules/file-manager/src/file-manager.actions.js';
 import { fileManagerRoutes } from '../../modules/file-manager/src/file-manager.routes.js';
+import { registerReportsActions } from '../../modules/reports/src/reports.actions.js';
+import { reportsRoutes } from '../../modules/reports/src/reports.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -139,6 +141,7 @@ export async function buildServer() {
   registerSearchActions();
   registerDashboardActions();
   registerFileManagerActions();
+  registerReportsActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -179,6 +182,9 @@ export async function buildServer() {
 
   // M17 — File Manager
   await app.register(fileManagerRoutes);
+
+  // M10 — Reports Engine
+  await app.register(reportsRoutes);
 
   return app;
 }
