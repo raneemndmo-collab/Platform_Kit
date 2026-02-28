@@ -10,6 +10,7 @@ export type {
   ApiResponse,
   ApiErrorResponse,
   ErrorCode,
+  RasidModule,
 } from './types.js';
 
 export {

@@ -72,3 +72,23 @@ export type ErrorCode =
   | 'CONFLICT'
   | 'INVALID_STATE_TRANSITION'
   | 'INTERNAL_ERROR';
+
+/**
+ * Module Contract Standard — RasidModule
+ *
+ * Every business module (Phase 2+) MUST export a default object
+ * conforming to this interface. The kernel module-loader discovers
+ * and registers modules automatically — no hardcoded wiring in server.ts.
+ */
+export interface RasidModule {
+  /** Unique module identifier, e.g. 'mod_connectors' */
+  id: string;
+  /** Human-readable display name, e.g. 'Custom Tables (Data Studio)' */
+  name: string;
+  /** Fastify plugin that registers all HTTP routes for this module */
+  routes: (app: unknown) => Promise<void>;
+  /** Registers all K3 action handlers for this module */
+  registerActions: () => void;
+  /** Optional: run module-specific DB migrations at boot */
+  migrate?: () => Promise<void>;
+}

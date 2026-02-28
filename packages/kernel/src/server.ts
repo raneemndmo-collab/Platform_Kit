@@ -11,8 +11,7 @@ import { designSystemRoutes } from './design-system/design-system.routes.js';
 import { notificationRouterRoutes } from './notification-router/notification-router.routes.js';
 import { registerObjectActions } from './action-registry/action-handlers.js';
 import { registerNotificationActions } from './notification-router/notification-action-handlers.js';
-import { registerCustomTableActions } from '../../modules/connectors/src/custom-tables.actions.js';
-import { customTablesRoutes } from '../../modules/connectors/src/custom-tables.routes.js';
+import { loadModules } from './module-loader.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -120,10 +119,9 @@ export async function buildServer() {
   // Role routes (JWT required)
   await app.register(roleRoutes);
 
-  // Register action handlers (must be before routes that use them)
+  // Register kernel action handlers (must be before routes that use them)
   registerObjectActions();
   registerNotificationActions();
-  registerCustomTableActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -143,10 +141,8 @@ export async function buildServer() {
   // Notification Router routes (JWT required)
   await app.register(notificationRouterRoutes);
 
-  // ── Phase 2 Modules ──
-
-  // M13 — Custom Tables (Data Studio)
-  await app.register(customTablesRoutes);
+  // ── Phase 2+ Modules (auto-discovered via Module Contract Standard) ──
+  await loadModules(app);
 
   return app;
 }
