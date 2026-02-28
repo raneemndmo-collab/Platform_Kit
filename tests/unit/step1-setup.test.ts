@@ -38,7 +38,7 @@ describe('STEP 1 — Repository Setup Verification', () => {
     await sql.end();
   });
 
-  it('all 14 tables exist after migration', async () => {
+  it('all 21 tables exist after migration', async () => {
     const sql = postgres(process.env.DATABASE_ADMIN_URL!, { max: 1 });
     const result = await sql`
       SELECT table_name FROM information_schema.tables
@@ -63,11 +63,15 @@ describe('STEP 1 — Repository Setup Verification', () => {
     expect(tableNames).toContain('design_tokens');
     expect(tableNames).toContain('design_themes');
     expect(tableNames).toContain('design_components');
-    expect(tableNames.length).toBe(17);
+    expect(tableNames).toContain('notification_channels');
+    expect(tableNames).toContain('notification_templates');
+    expect(tableNames).toContain('notifications');
+    expect(tableNames).toContain('notification_preferences');
+    expect(tableNames.length).toBe(21);
     await sql.end();
   });
 
-  it('RLS enabled on 13 tenant-scoped tables', async () => {
+  it('RLS enabled on 17 tenant-scoped tables', async () => {
     const sql = postgres(process.env.DATABASE_ADMIN_URL!, { max: 1 });
     const result = await sql`
       SELECT tablename FROM pg_tables
@@ -88,7 +92,11 @@ describe('STEP 1 — Repository Setup Verification', () => {
     expect(rlsTables).toContain('design_tokens');
     expect(rlsTables).toContain('design_themes');
     expect(rlsTables).toContain('design_components');
-    expect(rlsTables.length).toBe(13);
+    expect(rlsTables).toContain('notification_channels');
+    expect(rlsTables).toContain('notification_templates');
+    expect(rlsTables).toContain('notifications');
+    expect(rlsTables).toContain('notification_preferences');
+    expect(rlsTables.length).toBe(17);
     await sql.end();
   });
 

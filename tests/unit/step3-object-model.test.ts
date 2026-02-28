@@ -11,6 +11,10 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM kernel.notification_preferences`;
+  await adminSql`DELETE FROM kernel.notifications`;
+  await adminSql`DELETE FROM kernel.notification_templates`;
+  await adminSql`DELETE FROM kernel.notification_channels`;
   await adminSql`DELETE FROM kernel.design_components`;
   await adminSql`DELETE FROM kernel.design_themes`;
   await adminSql`DELETE FROM kernel.design_tokens`;

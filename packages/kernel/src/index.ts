@@ -123,3 +123,21 @@ export type {
   ThemeStatus,
   ComponentStatus,
 } from './design-system/design-system.types.js';
+
+// K10 — Notification Router interfaces
+export type { INotificationRouter } from './notification-router/notification-router.interface.js';
+export type {
+  NotificationChannel,
+  NotificationTemplate,
+  Notification,
+  NotificationPreference,
+  CreateChannelInput,
+  UpdateChannelInput,
+  CreateTemplateInput,
+  UpdateTemplateInput,
+  SendNotificationInput,
+  UpdatePreferenceInput,
+  ChannelType,
+  NotificationStatus,
+  TemplateStatus as NotificationTemplateStatus,
+} from './notification-router/notification-router.types.js';

@@ -310,8 +310,85 @@ async function migrate(): Promise<void> {
   `;
   await sql`CREATE INDEX IF NOT EXISTS design_components_tenant_category_idx ON kernel.design_components (tenant_id, category)`;
 
+  // ─── K10 notification_channels (Phase 1 — Notification Router) ───
+  await sql`
+    CREATE TABLE IF NOT EXISTS kernel.notification_channels (
+      id UUID PRIMARY KEY,
+      tenant_id UUID NOT NULL REFERENCES kernel.tenants(id),
+      name VARCHAR(255) NOT NULL,
+      channel_type VARCHAR(20) NOT NULL
+        CHECK (channel_type IN ('email', 'in_app')),
+      config JSONB NOT NULL DEFAULT '{}',
+      enabled BOOLEAN NOT NULL DEFAULT true,
+      created_by UUID NOT NULL REFERENCES kernel.users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (tenant_id, name)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS notification_channels_tenant_type_idx ON kernel.notification_channels (tenant_id, channel_type)`;
+
+  // ─── K10 notification_templates ───
+  await sql`
+    CREATE TABLE IF NOT EXISTS kernel.notification_templates (
+      id UUID PRIMARY KEY,
+      tenant_id UUID NOT NULL REFERENCES kernel.tenants(id),
+      name VARCHAR(255) NOT NULL,
+      channel_type VARCHAR(20) NOT NULL
+        CHECK (channel_type IN ('email', 'in_app')),
+      subject VARCHAR(500) NOT NULL,
+      body VARCHAR(10000) NOT NULL,
+      variables JSONB NOT NULL DEFAULT '[]',
+      status VARCHAR(20) NOT NULL DEFAULT 'draft'
+        CHECK (status IN ('draft', 'active', 'archived')),
+      created_by UUID NOT NULL REFERENCES kernel.users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (tenant_id, name)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS notification_templates_tenant_channel_idx ON kernel.notification_templates (tenant_id, channel_type)`;
+
+  // ─── K10 notifications ───
+  await sql`
+    CREATE TABLE IF NOT EXISTS kernel.notifications (
+      id UUID PRIMARY KEY,
+      tenant_id UUID NOT NULL REFERENCES kernel.tenants(id),
+      channel_type VARCHAR(20) NOT NULL
+        CHECK (channel_type IN ('email', 'in_app')),
+      template_id UUID REFERENCES kernel.notification_templates(id),
+      recipient_id UUID NOT NULL REFERENCES kernel.users(id),
+      subject VARCHAR(500) NOT NULL,
+      body VARCHAR(10000) NOT NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'sent', 'delivered', 'failed')),
+      metadata JSONB NOT NULL DEFAULT '{}',
+      sent_at TIMESTAMPTZ,
+      created_by UUID NOT NULL REFERENCES kernel.users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS notifications_tenant_recipient_idx ON kernel.notifications (tenant_id, recipient_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS notifications_tenant_status_idx ON kernel.notifications (tenant_id, status)`;
+  await sql`CREATE INDEX IF NOT EXISTS notifications_tenant_created_idx ON kernel.notifications (tenant_id, created_at DESC)`;
+
+  // ─── K10 notification_preferences ───
+  await sql`
+    CREATE TABLE IF NOT EXISTS kernel.notification_preferences (
+      id UUID PRIMARY KEY,
+      tenant_id UUID NOT NULL REFERENCES kernel.tenants(id),
+      user_id UUID NOT NULL REFERENCES kernel.users(id),
+      channel_type VARCHAR(20) NOT NULL
+        CHECK (channel_type IN ('email', 'in_app')),
+      enabled BOOLEAN NOT NULL DEFAULT true,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (user_id, channel_type)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS notification_preferences_tenant_idx ON kernel.notification_preferences (tenant_id)`;
+
   // ─── RLS Policies ───
-  const rlsTables = ['users', 'roles', 'role_permissions', 'user_roles', 'objects', 'audit_log', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components'];
+  const rlsTables = ['users', 'roles', 'role_permissions', 'user_roles', 'objects', 'audit_log', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components', 'notification_channels', 'notification_templates', 'notifications', 'notification_preferences'];
   for (const table of rlsTables) {
     await sql.unsafe(`ALTER TABLE kernel.${table} ENABLE ROW LEVEL SECURITY`);
     await sql.unsafe(`
@@ -333,13 +410,13 @@ async function migrate(): Promise<void> {
   await sql`GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA kernel TO rasid_app`;
 
   // UPDATE on specific tables (NOT audit_log)
-  const updatableTables = ['tenants', 'users', 'roles', 'role_permissions', 'user_roles', 'objects', 'object_types', 'action_manifests', 'permissions', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components'];
+  const updatableTables = ['tenants', 'users', 'roles', 'role_permissions', 'user_roles', 'objects', 'object_types', 'action_manifests', 'permissions', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components', 'notification_channels', 'notification_templates', 'notifications', 'notification_preferences'];
   for (const table of updatableTables) {
     await sql.unsafe(`GRANT UPDATE ON kernel.${table} TO rasid_app`);
   }
 
   // DELETE on junction tables and roles (for custom role deletion)
-  const deletableTables = ['role_permissions', 'user_roles', 'roles', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components'];
+  const deletableTables = ['role_permissions', 'user_roles', 'roles', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components', 'notification_channels', 'notification_templates', 'notifications', 'notification_preferences'];
   for (const table of deletableTables) {
     await sql.unsafe(`GRANT DELETE ON kernel.${table} TO rasid_app`);
   }
@@ -347,7 +424,7 @@ async function migrate(): Promise<void> {
   // EXPLICITLY: NO UPDATE, NO DELETE on audit_log for rasid_app
   await sql`REVOKE UPDATE, DELETE ON kernel.audit_log FROM rasid_app`;
 
-  console.log('Migration complete. 17 tables created. RLS enabled on 13 tables.');
+  console.log('Migration complete. 21 tables created. RLS enabled on 17 tables.');
   await sql.end();
 }
 

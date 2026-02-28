@@ -309,6 +309,89 @@ export const designComponents = kernelSchema.table(
   ],
 );
 
+// ─── K10 notification_channels (Phase 1 — Notification Router) ───
+export const notificationChannels = kernelSchema.table(
+  'notification_channels',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    channel_type: varchar('channel_type', { length: 20 }).notNull(),
+    config: jsonb('config').notNull().default('{}'),
+    enabled: boolean('enabled').notNull().default(true),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('notification_channels_tenant_name_idx').on(table.tenant_id, table.name),
+    index('notification_channels_tenant_type_idx').on(table.tenant_id, table.channel_type),
+  ],
+);
+
+// ─── K10 notification_templates ───
+export const notificationTemplates = kernelSchema.table(
+  'notification_templates',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    channel_type: varchar('channel_type', { length: 20 }).notNull(),
+    subject: varchar('subject', { length: 500 }).notNull(),
+    body: varchar('body', { length: 10000 }).notNull(),
+    variables: jsonb('variables').notNull().default('[]'),
+    status: varchar('status', { length: 20 }).notNull().default('draft'),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('notification_templates_tenant_name_idx').on(table.tenant_id, table.name),
+    index('notification_templates_tenant_channel_idx').on(table.tenant_id, table.channel_type),
+  ],
+);
+
+// ─── K10 notifications ───
+export const notifications = kernelSchema.table(
+  'notifications',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    channel_type: varchar('channel_type', { length: 20 }).notNull(),
+    template_id: uuid('template_id').references(() => notificationTemplates.id),
+    recipient_id: uuid('recipient_id').notNull().references(() => users.id),
+    subject: varchar('subject', { length: 500 }).notNull(),
+    body: varchar('body', { length: 10000 }).notNull(),
+    status: varchar('status', { length: 20 }).notNull().default('pending'),
+    metadata: jsonb('metadata').notNull().default('{}'),
+    sent_at: timestamp('sent_at', { withTimezone: true }),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('notifications_tenant_recipient_idx').on(table.tenant_id, table.recipient_id),
+    index('notifications_tenant_status_idx').on(table.tenant_id, table.status),
+    index('notifications_tenant_created_idx').on(table.tenant_id, table.created_at),
+  ],
+);
+
+// ─── K10 notification_preferences ───
+export const notificationPreferences = kernelSchema.table(
+  'notification_preferences',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    user_id: uuid('user_id').notNull().references(() => users.id),
+    channel_type: varchar('channel_type', { length: 20 }).notNull(),
+    enabled: boolean('enabled').notNull().default(true),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('notification_preferences_user_channel_idx').on(table.user_id, table.channel_type),
+    index('notification_preferences_tenant_idx').on(table.tenant_id),
+  ],
+);
+
 // ─── K8 metrics ───
 export const metrics = kernelSchema.table(
   'metrics',

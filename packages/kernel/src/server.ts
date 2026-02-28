@@ -8,6 +8,7 @@ import { auditRoutes } from './audit/audit.routes.js';
 import { lineageRoutes } from './lineage/lineage.routes.js';
 import { semanticLayerRoutes } from './semantic-layer/semantic-layer.routes.js';
 import { designSystemRoutes } from './design-system/design-system.routes.js';
+import { notificationRouterRoutes } from './notification-router/notification-router.routes.js';
 import { registerObjectActions } from './action-registry/action-handlers.js';
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -133,6 +134,9 @@ export async function buildServer() {
 
   // Design System routes (JWT required)
   await app.register(designSystemRoutes);
+
+  // Notification Router routes (JWT required)
+  await app.register(notificationRouterRoutes);
 
   return app;
 }
