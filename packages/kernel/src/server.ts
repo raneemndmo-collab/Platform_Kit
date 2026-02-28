@@ -13,6 +13,8 @@ import { registerObjectActions } from './action-registry/action-handlers.js';
 import { registerNotificationActions } from './notification-router/notification-action-handlers.js';
 import { registerCustomTableActions } from '../../modules/connectors/src/custom-tables.actions.js';
 import { customTablesRoutes } from '../../modules/connectors/src/custom-tables.routes.js';
+import { registerSheetForgeActions } from '../../modules/sheetforge/src/sheetforge.actions.js';
+import { sheetForgeRoutes } from '../../modules/sheetforge/src/sheetforge.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -124,6 +126,7 @@ export async function buildServer() {
   registerObjectActions();
   registerNotificationActions();
   registerCustomTableActions();
+  registerSheetForgeActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -147,6 +150,9 @@ export async function buildServer() {
 
   // M13 — Custom Tables (Data Studio)
   await app.register(customTablesRoutes);
+
+  // M8 — SheetForge (Data Connectors)
+  await app.register(sheetForgeRoutes);
 
   return app;
 }

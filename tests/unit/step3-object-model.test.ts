@@ -11,6 +11,12 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM mod_sheetforge.gap_analyses`;
+  await adminSql`DELETE FROM mod_sheetforge.compositions`;
+  await adminSql`DELETE FROM mod_sheetforge.sheets`;
+  await adminSql`DELETE FROM mod_sheetforge.libraries`;
+  await adminSql`DELETE FROM mod_connectors.custom_table_rows`;
+  await adminSql`DELETE FROM mod_connectors.custom_tables`;
   await adminSql`DELETE FROM kernel.notification_preferences`;
   await adminSql`DELETE FROM kernel.notifications`;
   await adminSql`DELETE FROM kernel.notification_templates`;

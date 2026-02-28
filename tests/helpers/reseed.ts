@@ -10,6 +10,10 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_sheetforge.gap_analyses`;
+  await adminSql`DELETE FROM mod_sheetforge.compositions`;
+  await adminSql`DELETE FROM mod_sheetforge.sheets`;
+  await adminSql`DELETE FROM mod_sheetforge.libraries`;
   await adminSql`DELETE FROM mod_connectors.custom_table_rows`;
   await adminSql`DELETE FROM mod_connectors.custom_tables`;
   await adminSql`DELETE FROM kernel.notification_preferences`;
@@ -53,6 +57,9 @@ export async function reseed(): Promise<void> {
     ['notification_preferences', 'read'], ['notification_preferences', 'update'],
     ['custom_tables', 'create'], ['custom_tables', 'read'], ['custom_tables', 'update'], ['custom_tables', 'delete'],
     ['custom_table_rows', 'create'], ['custom_table_rows', 'read'], ['custom_table_rows', 'update'], ['custom_table_rows', 'delete'],
+    ['libraries', 'create'], ['libraries', 'read'], ['libraries', 'update'], ['libraries', 'delete'],
+    ['compositions', 'create'], ['compositions', 'read'], ['compositions', 'update'], ['compositions', 'delete'],
+    ['gap_analyses', 'create'], ['gap_analyses', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
