@@ -176,3 +176,25 @@ export const auditLog = kernelSchema.table(
     index('audit_tenant_action_idx').on(table.tenant_id, table.action_id, table.created_at),
   ],
 );
+
+// ─── K7 lineage_edges (Phase 1) ───
+export const lineageEdges = kernelSchema.table(
+  'lineage_edges',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    source_id: varchar('source_id', { length: 255 }).notNull(),
+    source_type: varchar('source_type', { length: 100 }).notNull(),
+    target_id: varchar('target_id', { length: 255 }).notNull(),
+    target_type: varchar('target_type', { length: 100 }).notNull(),
+    relationship: varchar('relationship', { length: 100 }).notNull(),
+    metadata: jsonb('metadata').notNull().default('{}'),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('lineage_edges_unique_idx').on(table.tenant_id, table.source_id, table.target_id, table.relationship),
+    index('lineage_edges_source_idx').on(table.tenant_id, table.source_id),
+    index('lineage_edges_target_idx').on(table.tenant_id, table.target_id),
+  ],
+);

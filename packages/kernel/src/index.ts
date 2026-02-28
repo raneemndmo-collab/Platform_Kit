@@ -75,3 +75,14 @@ export type { PlatformEvent, EventHandler } from './event-bus/event-bus.types.js
 // K6 — Audit Engine interfaces
 export type { IAuditEngine } from './audit/audit.interface.js';
 export type { AuditEntry, AuditRecord, AuditQuery } from './audit/audit.types.js';
+
+// K7 — Lineage Engine interfaces
+export type { ILineageEngine } from './lineage/lineage.interface.js';
+export type {
+  LineageNode,
+  LineageEdge,
+  AddEdgeInput,
+  RemoveEdgeInput,
+  ImpactReport,
+  TraversalOptions,
+} from './lineage/lineage.types.js';
