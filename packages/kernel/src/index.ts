@@ -105,3 +105,21 @@ export type {
   FieldDataType,
   AggregationType,
 } from './semantic-layer/semantic-layer.types.js';
+
+// K9 — Design System interfaces
+export type { IDesignSystem } from './design-system/design-system.interface.js';
+export type {
+  DesignToken,
+  Theme,
+  ComponentDef,
+  CreateTokenInput,
+  UpdateTokenInput,
+  CreateThemeInput,
+  UpdateThemeInput,
+  CreateComponentInput,
+  UpdateComponentInput,
+  ResolvedTheme,
+  TokenCategory,
+  ThemeStatus,
+  ComponentStatus,
+} from './design-system/design-system.types.js';

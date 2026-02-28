@@ -251,8 +251,67 @@ async function migrate(): Promise<void> {
   `;
   await sql`CREATE INDEX IF NOT EXISTS metrics_tenant_idx ON kernel.metrics (tenant_id)`;
 
+  // ─── K9 design_tokens (Phase 1 — Design System) ───
+  await sql`
+    CREATE TABLE IF NOT EXISTS kernel.design_tokens (
+      id UUID PRIMARY KEY,
+      tenant_id UUID NOT NULL REFERENCES kernel.tenants(id),
+      name VARCHAR(255) NOT NULL,
+      category VARCHAR(20) NOT NULL
+        CHECK (category IN ('color', 'typography', 'spacing', 'sizing', 'border', 'shadow', 'opacity')),
+      value VARCHAR(1000) NOT NULL,
+      description VARCHAR(1000),
+      created_by UUID NOT NULL REFERENCES kernel.users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (tenant_id, name)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS design_tokens_tenant_category_idx ON kernel.design_tokens (tenant_id, category)`;
+
+  // ─── K9 design_themes ───
+  await sql`
+    CREATE TABLE IF NOT EXISTS kernel.design_themes (
+      id UUID PRIMARY KEY,
+      tenant_id UUID NOT NULL REFERENCES kernel.tenants(id),
+      name VARCHAR(255) NOT NULL,
+      display_name VARCHAR(255) NOT NULL,
+      description VARCHAR(1000),
+      status VARCHAR(20) NOT NULL DEFAULT 'draft'
+        CHECK (status IN ('draft', 'active', 'archived')),
+      is_default BOOLEAN NOT NULL DEFAULT false,
+      token_overrides JSONB NOT NULL DEFAULT '{}',
+      created_by UUID NOT NULL REFERENCES kernel.users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (tenant_id, name)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS design_themes_tenant_status_idx ON kernel.design_themes (tenant_id, status)`;
+
+  // ─── K9 design_components ───
+  await sql`
+    CREATE TABLE IF NOT EXISTS kernel.design_components (
+      id UUID PRIMARY KEY,
+      tenant_id UUID NOT NULL REFERENCES kernel.tenants(id),
+      name VARCHAR(255) NOT NULL,
+      display_name VARCHAR(255) NOT NULL,
+      description VARCHAR(1000),
+      category VARCHAR(100) NOT NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'draft'
+        CHECK (status IN ('draft', 'active', 'deprecated')),
+      variants JSONB NOT NULL DEFAULT '{}',
+      default_props JSONB NOT NULL DEFAULT '{}',
+      created_by UUID NOT NULL REFERENCES kernel.users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (tenant_id, name)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS design_components_tenant_category_idx ON kernel.design_components (tenant_id, category)`;
+
   // ─── RLS Policies ───
-  const rlsTables = ['users', 'roles', 'role_permissions', 'user_roles', 'objects', 'audit_log', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics'];
+  const rlsTables = ['users', 'roles', 'role_permissions', 'user_roles', 'objects', 'audit_log', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components'];
   for (const table of rlsTables) {
     await sql.unsafe(`ALTER TABLE kernel.${table} ENABLE ROW LEVEL SECURITY`);
     await sql.unsafe(`
@@ -274,13 +333,13 @@ async function migrate(): Promise<void> {
   await sql`GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA kernel TO rasid_app`;
 
   // UPDATE on specific tables (NOT audit_log)
-  const updatableTables = ['tenants', 'users', 'roles', 'role_permissions', 'user_roles', 'objects', 'object_types', 'action_manifests', 'permissions', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics'];
+  const updatableTables = ['tenants', 'users', 'roles', 'role_permissions', 'user_roles', 'objects', 'object_types', 'action_manifests', 'permissions', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components'];
   for (const table of updatableTables) {
     await sql.unsafe(`GRANT UPDATE ON kernel.${table} TO rasid_app`);
   }
 
   // DELETE on junction tables and roles (for custom role deletion)
-  const deletableTables = ['role_permissions', 'user_roles', 'roles', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics'];
+  const deletableTables = ['role_permissions', 'user_roles', 'roles', 'lineage_edges', 'datasets', 'dataset_fields', 'metrics', 'design_tokens', 'design_themes', 'design_components'];
   for (const table of deletableTables) {
     await sql.unsafe(`GRANT DELETE ON kernel.${table} TO rasid_app`);
   }
@@ -288,7 +347,7 @@ async function migrate(): Promise<void> {
   // EXPLICITLY: NO UPDATE, NO DELETE on audit_log for rasid_app
   await sql`REVOKE UPDATE, DELETE ON kernel.audit_log FROM rasid_app`;
 
-  console.log('Migration complete. 14 tables created. RLS enabled on 10 tables.');
+  console.log('Migration complete. 17 tables created. RLS enabled on 13 tables.');
   await sql.end();
 }
 

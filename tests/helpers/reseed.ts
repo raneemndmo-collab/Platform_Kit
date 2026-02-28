@@ -10,6 +10,9 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM kernel.design_components`;
+  await adminSql`DELETE FROM kernel.design_themes`;
+  await adminSql`DELETE FROM kernel.design_tokens`;
   await adminSql`DELETE FROM kernel.metrics`;
   await adminSql`DELETE FROM kernel.dataset_fields`;
   await adminSql`DELETE FROM kernel.datasets`;

@@ -60,11 +60,14 @@ describe('STEP 1 — Repository Setup Verification', () => {
     expect(tableNames).toContain('datasets');
     expect(tableNames).toContain('dataset_fields');
     expect(tableNames).toContain('metrics');
-    expect(tableNames.length).toBe(14);
+    expect(tableNames).toContain('design_tokens');
+    expect(tableNames).toContain('design_themes');
+    expect(tableNames).toContain('design_components');
+    expect(tableNames.length).toBe(17);
     await sql.end();
   });
 
-  it('RLS enabled on 10 tenant-scoped tables', async () => {
+  it('RLS enabled on 13 tenant-scoped tables', async () => {
     const sql = postgres(process.env.DATABASE_ADMIN_URL!, { max: 1 });
     const result = await sql`
       SELECT tablename FROM pg_tables
@@ -82,7 +85,10 @@ describe('STEP 1 — Repository Setup Verification', () => {
     expect(rlsTables).toContain('datasets');
     expect(rlsTables).toContain('dataset_fields');
     expect(rlsTables).toContain('metrics');
-    expect(rlsTables.length).toBe(10);
+    expect(rlsTables).toContain('design_tokens');
+    expect(rlsTables).toContain('design_themes');
+    expect(rlsTables).toContain('design_components');
+    expect(rlsTables.length).toBe(13);
     await sql.end();
   });
 

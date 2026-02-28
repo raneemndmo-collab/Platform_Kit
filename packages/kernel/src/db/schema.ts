@@ -244,6 +244,71 @@ export const datasetFields = kernelSchema.table(
   ],
 );
 
+// ─── K9 design_tokens (Phase 1 — Design System) ───
+export const designTokens = kernelSchema.table(
+  'design_tokens',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    category: varchar('category', { length: 20 }).notNull(),
+    value: varchar('value', { length: 1000 }).notNull(),
+    description: varchar('description', { length: 1000 }),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('design_tokens_tenant_name_idx').on(table.tenant_id, table.name),
+    index('design_tokens_tenant_category_idx').on(table.tenant_id, table.category),
+  ],
+);
+
+// ─── K9 design_themes ───
+export const designThemes = kernelSchema.table(
+  'design_themes',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    display_name: varchar('display_name', { length: 255 }).notNull(),
+    description: varchar('description', { length: 1000 }),
+    status: varchar('status', { length: 20 }).notNull().default('draft'),
+    is_default: boolean('is_default').notNull().default(false),
+    token_overrides: jsonb('token_overrides').notNull().default('{}'),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('design_themes_tenant_name_idx').on(table.tenant_id, table.name),
+    index('design_themes_tenant_status_idx').on(table.tenant_id, table.status),
+  ],
+);
+
+// ─── K9 design_components ───
+export const designComponents = kernelSchema.table(
+  'design_components',
+  {
+    id: uuid('id').primaryKey(),
+    tenant_id: uuid('tenant_id').notNull().references(() => tenants.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    display_name: varchar('display_name', { length: 255 }).notNull(),
+    description: varchar('description', { length: 1000 }),
+    category: varchar('category', { length: 100 }).notNull(),
+    status: varchar('status', { length: 20 }).notNull().default('draft'),
+    variants: jsonb('variants').notNull().default('{}'),
+    default_props: jsonb('default_props').notNull().default('{}'),
+    created_by: uuid('created_by').notNull().references(() => users.id),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('design_components_tenant_name_idx').on(table.tenant_id, table.name),
+    index('design_components_tenant_category_idx').on(table.tenant_id, table.category),
+  ],
+);
+
 // ─── K8 metrics ───
 export const metrics = kernelSchema.table(
   'metrics',

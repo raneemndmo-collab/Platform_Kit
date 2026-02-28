@@ -7,6 +7,7 @@ import { objectRoutes } from './object-model/object-model.routes.js';
 import { auditRoutes } from './audit/audit.routes.js';
 import { lineageRoutes } from './lineage/lineage.routes.js';
 import { semanticLayerRoutes } from './semantic-layer/semantic-layer.routes.js';
+import { designSystemRoutes } from './design-system/design-system.routes.js';
 import { registerObjectActions } from './action-registry/action-handlers.js';
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -129,6 +130,9 @@ export async function buildServer() {
 
   // Semantic Data Layer routes (JWT required)
   await app.register(semanticLayerRoutes);
+
+  // Design System routes (JWT required)
+  await app.register(designSystemRoutes);
 
   return app;
 }

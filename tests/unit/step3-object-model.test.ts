@@ -11,6 +11,9 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM kernel.design_components`;
+  await adminSql`DELETE FROM kernel.design_themes`;
+  await adminSql`DELETE FROM kernel.design_tokens`;
   await adminSql`DELETE FROM kernel.user_roles`;
   await adminSql`DELETE FROM kernel.role_permissions`;
   await adminSql`DELETE FROM kernel.audit_log`;

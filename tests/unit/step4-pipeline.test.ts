@@ -15,6 +15,9 @@ let viewerUserId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM kernel.design_components`;
+  await adminSql`DELETE FROM kernel.design_themes`;
+  await adminSql`DELETE FROM kernel.design_tokens`;
   await adminSql`DELETE FROM kernel.metrics`;
   await adminSql`DELETE FROM kernel.dataset_fields`;
   await adminSql`DELETE FROM kernel.datasets`;
