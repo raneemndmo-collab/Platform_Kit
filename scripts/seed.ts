@@ -79,6 +79,9 @@ async function seed(): Promise<void> {
     // M14 — Custom Pages
     ['pages', 'create'], ['pages', 'read'], ['pages', 'update'], ['pages', 'delete'], ['pages', 'publish'],
     ['page_sections', 'create'], ['page_sections', 'read'], ['page_sections', 'update'], ['page_sections', 'delete'],
+    // M16 — Presentations
+    ['presentations', 'create'], ['presentations', 'read'], ['presentations', 'update'], ['presentations', 'delete'], ['presentations', 'publish'],
+    ['slides', 'create'], ['slides', 'read'], ['slides', 'update'], ['slides', 'delete'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
