@@ -73,6 +73,20 @@ export async function buildServer() {
       });
     }
 
+    // Fastify-native errors with explicit statusCode (e.g. FST_ERR_CTP_EMPTY_JSON_BODY)
+    if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+      return reply.status(error.statusCode).send({
+        error: {
+          code: (error as Error & { code?: string }).code || 'BAD_REQUEST',
+          message: error.message,
+        },
+        meta: {
+          request_id: request.id as string,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+
     // Unknown errors
     request.log.error(error);
     return reply.status(500).send({
