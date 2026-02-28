@@ -85,6 +85,10 @@ async function seed(): Promise<void> {
     // M15 — Forms Builder
     ['forms', 'create'], ['forms', 'read'], ['forms', 'update'], ['forms', 'delete'], ['forms', 'publish'],
     ['submissions', 'create'], ['submissions', 'read'], ['submissions', 'delete'],
+    // M21 — AI Engine (Step 1: Core)
+    ['ai_conversations', 'create'], ['ai_conversations', 'read'], ['ai_conversations', 'update'], ['ai_conversations', 'delete'],
+    ['ai_messages', 'create'], ['ai_messages', 'read'],
+    ['ai_tool_invocations', 'create'], ['ai_tool_invocations', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

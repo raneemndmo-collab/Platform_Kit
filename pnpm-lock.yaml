@@ -94,6 +94,15 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/modules/ai-engine:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
   packages/modules/connectors:
     dependencies:
       '@rasid/shared':

@@ -1,0 +1,55 @@
+All tables (47):
+kernel.action_manifests
+kernel.audit_log
+kernel.dataset_fields
+kernel.datasets
+kernel.design_components
+kernel.design_themes
+kernel.design_tokens
+kernel.lineage_edges
+kernel.metrics
+kernel.notification_channels
+kernel.notification_preferences
+kernel.notification_templates
+kernel.notifications
+kernel.object_types
+kernel.objects
+kernel.permissions
+kernel.role_permissions
+kernel.roles
+kernel.tenants
+kernel.user_roles
+kernel.users
+mod_connectors.custom_table_rows
+mod_connectors.custom_tables
+mod_custom_pages.pages
+mod_dashboard.dashboards
+mod_dashboard.shared_dashboards
+mod_dashboard.widgets
+mod_file_manager.files
+mod_file_manager.folders
+mod_forms.forms
+mod_forms.submissions
+mod_presentations.presentations
+mod_reports.report_definitions
+mod_reports.report_runs
+mod_search.search_analytics
+mod_search.search_index
+mod_search.search_synonyms
+mod_semantic.dimensions
+mod_semantic.facts
+mod_semantic.kpi_versions
+mod_semantic.kpis
+mod_semantic.models
+mod_semantic.relationships
+mod_sheetforge.compositions
+mod_sheetforge.gap_analyses
+mod_sheetforge.libraries
+mod_sheetforge.sheets
+
+Missing from step3 cleanup:
+- kernel.dataset_fields (FK to kernel.datasets)
+- kernel.datasets (FK to kernel.users, kernel.tenants)
+- kernel.lineage_edges (FK to kernel.users, kernel.tenants)
+- kernel.metrics (FK to kernel.users, kernel.tenants, kernel.datasets)
+- mod_presentations.slides (if exists - check)

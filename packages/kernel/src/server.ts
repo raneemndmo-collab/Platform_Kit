@@ -31,6 +31,8 @@ import { registerPresentationsActions } from '../../modules/presentations/src/pr
 import { presentationsRoutes } from '../../modules/presentations/src/presentations.routes.js';
 import { registerFormsActions } from '../../modules/forms/src/forms.actions.js';
 import { formsRoutes } from '../../modules/forms/src/forms.routes.js';
+import { registerAiEngineActions } from '../../modules/ai-engine/src/ai-engine.actions.js';
+import { aiEngineRoutes } from '../../modules/ai-engine/src/ai-engine.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -151,6 +153,7 @@ export async function buildServer() {
   registerCustomPagesActions();
   registerPresentationsActions();
   registerFormsActions();
+  registerAiEngineActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -203,6 +206,11 @@ export async function buildServer() {
 
   // M15 — Forms Builder
   await app.register(formsRoutes);
+
+  // ── Phase 4 Modules ──
+
+  // M21 — AI Engine (Step 1: Core)
+  await app.register(aiEngineRoutes);
 
   return app;
 }
