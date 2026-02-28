@@ -45,6 +45,10 @@ export async function reseed(): Promise<void> {
     ['permissions', 'assign'],
     ['objects', 'create'], ['objects', 'read'], ['objects', 'update'], ['objects', 'delete'],
     ['audit', 'read'],
+    ['notification_channels', 'create'], ['notification_channels', 'read'], ['notification_channels', 'update'], ['notification_channels', 'delete'],
+    ['notification_templates', 'create'], ['notification_templates', 'read'], ['notification_templates', 'update'], ['notification_templates', 'delete'],
+    ['notifications', 'create'], ['notifications', 'read'], ['notifications', 'update'],
+    ['notification_preferences', 'read'], ['notification_preferences', 'update'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

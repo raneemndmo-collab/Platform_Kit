@@ -10,6 +10,7 @@ import { semanticLayerRoutes } from './semantic-layer/semantic-layer.routes.js';
 import { designSystemRoutes } from './design-system/design-system.routes.js';
 import { notificationRouterRoutes } from './notification-router/notification-router.routes.js';
 import { registerObjectActions } from './action-registry/action-handlers.js';
+import { registerNotificationActions } from './notification-router/notification-action-handlers.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -119,6 +120,7 @@ export async function buildServer() {
 
   // Register action handlers (must be before routes that use them)
   registerObjectActions();
+  registerNotificationActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);

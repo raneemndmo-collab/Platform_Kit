@@ -59,13 +59,23 @@ afterAll(async () => {
 });
 
 // ═══════════════════════════════════════════════
-// ─── Channel CRUD ───
+// Helper: count audit entries for a given action_id
+// ═══════════════════════════════════════════════
+async function countAuditEntries(actionId: string): Promise<number> {
+  const rows = await adminSql`
+    SELECT count(*)::int AS cnt FROM kernel.audit_log WHERE action_id = ${actionId}
+  `;
+  return rows[0].cnt;
+}
+
+// ═══════════════════════════════════════════════
+// ─── Channel CRUD (via K3 pipeline) ───
 // ═══════════════════════════════════════════════
 
 describe('K10 Notification Router — Channels', () => {
   let channelId: string;
 
-  it('POST /api/v1/notifications/channels — creates email channel', async () => {
+  it('POST /api/v1/notifications/channels — creates email channel via K3', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/notifications/channels',
@@ -79,10 +89,13 @@ describe('K10 Notification Router — Channels', () => {
     expect(body.data.config.smtp_host).toBe('smtp.acme.com');
     expect(body.data.enabled).toBe(true);
     expect(body.data.created_by).toBe(userId);
+    // K3 pipeline: meta MUST contain audit_id and action_id
+    expect(body.meta.audit_id).toBeDefined();
+    expect(body.meta.action_id).toBe('rasid.core.notification.channel.create');
     channelId = body.data.id;
   });
 
-  it('POST /api/v1/notifications/channels — creates in_app channel', async () => {
+  it('POST /api/v1/notifications/channels — creates in_app channel via K3', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/notifications/channels',
@@ -91,6 +104,7 @@ describe('K10 Notification Router — Channels', () => {
     });
     expect(res.statusCode).toBe(201);
     expect(res.json().data.channel_type).toBe('in_app');
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.channel.create');
   });
 
   it('POST /api/v1/notifications/channels — duplicate name returns 409', async () => {
@@ -146,7 +160,7 @@ describe('K10 Notification Router — Channels', () => {
     expect(res.json().data.id).toBe(channelId);
   });
 
-  it('PATCH /api/v1/notifications/channels/:id — updates channel', async () => {
+  it('PATCH /api/v1/notifications/channels/:id — updates channel via K3', async () => {
     const res = await app.inject({
       method: 'PATCH',
       url: `/api/v1/notifications/channels/${channelId}`,
@@ -156,10 +170,11 @@ describe('K10 Notification Router — Channels', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().data.name).toBe('Updated Email');
     expect(res.json().data.enabled).toBe(false);
+    expect(res.json().meta.audit_id).toBeDefined();
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.channel.update');
   });
 
-  it('DELETE /api/v1/notifications/channels/:id — deletes channel', async () => {
-    // Create a throwaway channel to delete
+  it('DELETE /api/v1/notifications/channels/:id — deletes channel via K3', async () => {
     const createRes = await app.inject({
       method: 'POST',
       url: '/api/v1/notifications/channels',
@@ -197,13 +212,13 @@ describe('K10 Notification Router — Channels', () => {
 });
 
 // ═══════════════════════════════════════════════
-// ─── Template CRUD ───
+// ─── Template CRUD (via K3 pipeline) ───
 // ═══════════════════════════════════════════════
 
 describe('K10 Notification Router — Templates', () => {
   let templateId: string;
 
-  it('POST /api/v1/notifications/templates — creates template', async () => {
+  it('POST /api/v1/notifications/templates — creates template via K3', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/notifications/templates',
@@ -221,6 +236,8 @@ describe('K10 Notification Router — Templates', () => {
     expect(body.data.name).toBe('Welcome Email');
     expect(body.data.status).toBe('draft');
     expect(body.data.variables).toEqual(['user_name', 'tenant_name']);
+    expect(body.meta.audit_id).toBeDefined();
+    expect(body.meta.action_id).toBe('rasid.core.notification.template.create');
     templateId = body.data.id;
   });
 
@@ -254,7 +271,7 @@ describe('K10 Notification Router — Templates', () => {
     expect(res.json().data.id).toBe(templateId);
   });
 
-  it('PATCH /api/v1/notifications/templates/:id — updates template status', async () => {
+  it('PATCH /api/v1/notifications/templates/:id — updates template via K3', async () => {
     const res = await app.inject({
       method: 'PATCH',
       url: `/api/v1/notifications/templates/${templateId}`,
@@ -264,9 +281,11 @@ describe('K10 Notification Router — Templates', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().data.status).toBe('active');
     expect(res.json().data.subject).toBe('Welcome {{user_name}} to Rasid!');
+    expect(res.json().meta.audit_id).toBeDefined();
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.template.update');
   });
 
-  it('DELETE /api/v1/notifications/templates/:id — deletes template', async () => {
+  it('DELETE /api/v1/notifications/templates/:id — deletes template via K3', async () => {
     const createRes = await app.inject({
       method: 'POST',
       url: '/api/v1/notifications/templates',
@@ -296,13 +315,13 @@ describe('K10 Notification Router — Templates', () => {
 });
 
 // ═══════════════════════════════════════════════
-// ─── Notification Send & Status ───
+// ─── Notification Send & Status (via K3 pipeline) ───
 // ═══════════════════════════════════════════════
 
 describe('K10 Notification Router — Notifications', () => {
   let notificationId: string;
 
-  it('POST /api/v1/notifications/send — sends notification', async () => {
+  it('POST /api/v1/notifications/send — sends notification via K3', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/notifications/send',
@@ -321,6 +340,8 @@ describe('K10 Notification Router — Notifications', () => {
     expect(body.data.channel_type).toBe('email');
     expect(body.data.recipient_id).toBe(userId);
     expect(body.data.metadata.priority).toBe('high');
+    expect(body.meta.audit_id).toBeDefined();
+    expect(body.meta.action_id).toBe('rasid.core.notification.send');
     notificationId = body.data.id;
   });
 
@@ -371,7 +392,7 @@ describe('K10 Notification Router — Notifications', () => {
     expect(res.json().data.id).toBe(notificationId);
   });
 
-  it('PATCH /api/v1/notifications/:id/status — marks as delivered', async () => {
+  it('PATCH /api/v1/notifications/:id/status — marks as delivered via K3', async () => {
     const res = await app.inject({
       method: 'PATCH',
       url: `/api/v1/notifications/${notificationId}/status`,
@@ -381,10 +402,11 @@ describe('K10 Notification Router — Notifications', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().data.status).toBe('delivered');
     expect(res.json().data.sent_at).toBeTruthy();
+    expect(res.json().meta.audit_id).toBeDefined();
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.mark');
   });
 
-  it('PATCH /api/v1/notifications/:id/status — marks as failed', async () => {
-    // Create another notification to mark as failed
+  it('PATCH /api/v1/notifications/:id/status — marks as failed via K3', async () => {
     const sendRes = await app.inject({
       method: 'POST',
       url: '/api/v1/notifications/send',
@@ -402,6 +424,8 @@ describe('K10 Notification Router — Notifications', () => {
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().data.status).toBe('failed');
+    expect(res.json().meta.audit_id).toBeDefined();
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.mark');
   });
 
   it('Tenant B cannot see Tenant A notifications', async () => {
@@ -416,11 +440,11 @@ describe('K10 Notification Router — Notifications', () => {
 });
 
 // ═══════════════════════════════════════════════
-// ─── Preferences ───
+// ─── Preferences (via K3 pipeline) ───
 // ═══════════════════════════════════════════════
 
 describe('K10 Notification Router — Preferences', () => {
-  it('PUT /api/v1/notifications/preferences — creates preference', async () => {
+  it('PUT /api/v1/notifications/preferences — creates preference via K3', async () => {
     const res = await app.inject({
       method: 'PUT',
       url: '/api/v1/notifications/preferences',
@@ -431,9 +455,11 @@ describe('K10 Notification Router — Preferences', () => {
     expect(res.json().data.channel_type).toBe('email');
     expect(res.json().data.enabled).toBe(true);
     expect(res.json().data.user_id).toBe(userId);
+    expect(res.json().meta.audit_id).toBeDefined();
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.preference.upsert');
   });
 
-  it('PUT /api/v1/notifications/preferences — upserts (updates existing)', async () => {
+  it('PUT /api/v1/notifications/preferences — upserts (updates existing) via K3', async () => {
     const res = await app.inject({
       method: 'PUT',
       url: '/api/v1/notifications/preferences',
@@ -443,9 +469,10 @@ describe('K10 Notification Router — Preferences', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().data.channel_type).toBe('email');
     expect(res.json().data.enabled).toBe(false);
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.preference.upsert');
   });
 
-  it('PUT /api/v1/notifications/preferences — creates in_app preference', async () => {
+  it('PUT /api/v1/notifications/preferences — creates in_app preference via K3', async () => {
     const res = await app.inject({
       method: 'PUT',
       url: '/api/v1/notifications/preferences',
@@ -454,6 +481,7 @@ describe('K10 Notification Router — Preferences', () => {
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().data.channel_type).toBe('in_app');
+    expect(res.json().meta.action_id).toBe('rasid.core.notification.preference.upsert');
   });
 
   it('GET /api/v1/notifications/preferences — lists user preferences', async () => {
@@ -502,5 +530,41 @@ describe('K10 Notification Router — Auth', () => {
   it('GET /api/v1/notifications/preferences — no auth returns 401', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/v1/notifications/preferences' });
     expect(res.statusCode).toBe(401);
+  });
+});
+
+// ═══════════════════════════════════════════════
+// ─── K3 Pipeline Verification ───
+// ═══════════════════════════════════════════════
+
+describe('K10 Notification Router — K3 Pipeline Verification', () => {
+  it('Audit entries exist for notification channel.create actions', async () => {
+    const count = await countAuditEntries('rasid.core.notification.channel.create');
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  it('Audit entries exist for notification.send actions', async () => {
+    const count = await countAuditEntries('rasid.core.notification.send');
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  it('Audit entries exist for notification.mark actions', async () => {
+    const count = await countAuditEntries('rasid.core.notification.mark');
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  it('Audit entries exist for notification.preference.upsert actions', async () => {
+    const count = await countAuditEntries('rasid.core.notification.preference.upsert');
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  it('Failure path is audited (send to invalid recipient)', async () => {
+    // The earlier "invalid recipient returns 404" test should have created a failure audit
+    const rows = await adminSql`
+      SELECT count(*)::int AS cnt FROM kernel.audit_log
+      WHERE action_id = 'rasid.core.notification.send'
+        AND status = 'failure'
+    `;
+    expect(rows[0].cnt).toBeGreaterThanOrEqual(1);
   });
 });
