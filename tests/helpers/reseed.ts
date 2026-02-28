@@ -10,6 +10,9 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_dashboard.shared_dashboards`;
+  await adminSql`DELETE FROM mod_dashboard.widgets`;
+  await adminSql`DELETE FROM mod_dashboard.dashboards`;
   await adminSql`DELETE FROM mod_search.search_analytics`;
   await adminSql`DELETE FROM mod_search.search_synonyms`;
   await adminSql`DELETE FROM mod_search.search_index`;
@@ -77,6 +80,8 @@ export async function reseed(): Promise<void> {
     ['search_index', 'create'], ['search_index', 'read'], ['search_index', 'delete'], ['search_index', 'reindex'],
     ['search_synonyms', 'create'], ['search_synonyms', 'read'], ['search_synonyms', 'update'], ['search_synonyms', 'delete'],
     ['search_analytics', 'read'],
+    ['dashboards', 'create'], ['dashboards', 'read'], ['dashboards', 'update'], ['dashboards', 'delete'], ['dashboards', 'publish'], ['dashboards', 'share'],
+    ['dashboard_widgets', 'create'], ['dashboard_widgets', 'read'], ['dashboard_widgets', 'update'], ['dashboard_widgets', 'delete'], ['dashboard_widgets', 'query'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

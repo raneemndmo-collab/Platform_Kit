@@ -19,6 +19,8 @@ import { registerSemanticActions } from '../../modules/semantic/src/semantic.act
 import { semanticRoutes } from '../../modules/semantic/src/semantic.routes.js';
 import { registerSearchActions } from '../../modules/search/src/search.actions.js';
 import { searchRoutes } from '../../modules/search/src/search.routes.js';
+import { registerDashboardActions } from '../../modules/dashboard/src/dashboard.actions.js';
+import { dashboardRoutes } from '../../modules/dashboard/src/dashboard.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -133,6 +135,7 @@ export async function buildServer() {
   registerSheetForgeActions();
   registerSemanticActions();
   registerSearchActions();
+  registerDashboardActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -165,6 +168,9 @@ export async function buildServer() {
 
   // M12 — Search Engine
   await app.register(searchRoutes);
+
+  // M9 — Dashboard Engine
+  await app.register(dashboardRoutes);
 
   return app;
 }
