@@ -66,11 +66,11 @@ export async function reseed(): Promise<void> {
     ['libraries', 'create'], ['libraries', 'read'], ['libraries', 'update'], ['libraries', 'delete'],
     ['compositions', 'create'], ['compositions', 'read'], ['compositions', 'update'], ['compositions', 'delete'],
     ['gap_analyses', 'create'], ['gap_analyses', 'read'],
-    ['mod_semantic:model', 'create'], ['mod_semantic:model', 'read'], ['mod_semantic:model', 'update'], ['mod_semantic:model', 'delete'], ['mod_semantic:model', 'publish'],
-    ['mod_semantic:dimension', 'create'], ['mod_semantic:dimension', 'delete'],
-    ['mod_semantic:fact', 'create'], ['mod_semantic:fact', 'delete'],
-    ['mod_semantic:relationship', 'create'], ['mod_semantic:relationship', 'delete'],
-    ['mod_semantic:kpi', 'create'], ['mod_semantic:kpi', 'read'], ['mod_semantic:kpi', 'update'], ['mod_semantic:kpi', 'approve'], ['mod_semantic:kpi', 'deprecate'],
+    ['semantic_models', 'create'], ['semantic_models', 'read'], ['semantic_models', 'update'], ['semantic_models', 'delete'], ['semantic_models', 'publish'],
+    ['semantic_dimensions', 'create'], ['semantic_dimensions', 'delete'],
+    ['semantic_facts', 'create'], ['semantic_facts', 'delete'],
+    ['semantic_relationships', 'create'], ['semantic_relationships', 'delete'],
+    ['semantic_kpis', 'create'], ['semantic_kpis', 'read'], ['semantic_kpis', 'update'], ['semantic_kpis', 'approve'], ['semantic_kpis', 'deprecate'], ['semantic_kpis', 'preview'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

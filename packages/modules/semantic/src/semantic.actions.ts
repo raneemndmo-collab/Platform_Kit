@@ -31,10 +31,10 @@ export function registerSemanticActions(): void {
       display_name: 'Create Semantic Model',
       module_id: 'mod_semantic',
       verb: 'create',
-      resource: 'mod_semantic:model',
+      resource: 'semantic_models',
       input_schema: { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:model.create'],
+      required_permissions: ['semantic_models.create'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -57,10 +57,10 @@ export function registerSemanticActions(): void {
       display_name: 'Update Semantic Model',
       module_id: 'mod_semantic',
       verb: 'update',
-      resource: 'mod_semantic:model',
+      resource: 'semantic_models',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:model.update'],
+      required_permissions: ['semantic_models.update'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -83,10 +83,10 @@ export function registerSemanticActions(): void {
       display_name: 'Publish Semantic Model',
       module_id: 'mod_semantic',
       verb: 'update',
-      resource: 'mod_semantic:model',
+      resource: 'semantic_models',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:model.publish'],
+      required_permissions: ['semantic_models.publish'],
       sensitivity: 'elevated',
     },
     async (input, ctx, sql) => {
@@ -109,10 +109,10 @@ export function registerSemanticActions(): void {
       display_name: 'Delete Semantic Model',
       module_id: 'mod_semantic',
       verb: 'delete',
-      resource: 'mod_semantic:model',
+      resource: 'semantic_models',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:model.delete'],
+      required_permissions: ['semantic_models.delete'],
       sensitivity: 'critical',
     },
     async (input, ctx, sql) => {
@@ -139,10 +139,10 @@ export function registerSemanticActions(): void {
       display_name: 'Define Dimension',
       module_id: 'mod_semantic',
       verb: 'create',
-      resource: 'mod_semantic:dimension',
+      resource: 'semantic_dimensions',
       input_schema: { type: 'object', required: ['model_id', 'name'], properties: { model_id: { type: 'string' }, name: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:dimension.create'],
+      required_permissions: ['semantic_dimensions.create'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -165,10 +165,10 @@ export function registerSemanticActions(): void {
       display_name: 'Delete Dimension',
       module_id: 'mod_semantic',
       verb: 'delete',
-      resource: 'mod_semantic:dimension',
+      resource: 'semantic_dimensions',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:dimension.delete'],
+      required_permissions: ['semantic_dimensions.delete'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -195,10 +195,10 @@ export function registerSemanticActions(): void {
       display_name: 'Define Fact',
       module_id: 'mod_semantic',
       verb: 'create',
-      resource: 'mod_semantic:fact',
+      resource: 'semantic_facts',
       input_schema: { type: 'object', required: ['model_id', 'name', 'expression'], properties: { model_id: { type: 'string' }, name: { type: 'string' }, expression: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:fact.create'],
+      required_permissions: ['semantic_facts.create'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -221,10 +221,10 @@ export function registerSemanticActions(): void {
       display_name: 'Delete Fact',
       module_id: 'mod_semantic',
       verb: 'delete',
-      resource: 'mod_semantic:fact',
+      resource: 'semantic_facts',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:fact.delete'],
+      required_permissions: ['semantic_facts.delete'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -251,10 +251,10 @@ export function registerSemanticActions(): void {
       display_name: 'Create Relationship',
       module_id: 'mod_semantic',
       verb: 'create',
-      resource: 'mod_semantic:relationship',
+      resource: 'semantic_relationships',
       input_schema: { type: 'object', required: ['model_id', 'source_dimension_id', 'target_dimension_id'], properties: { model_id: { type: 'string' }, source_dimension_id: { type: 'string' }, target_dimension_id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:relationship.create'],
+      required_permissions: ['semantic_relationships.create'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -277,10 +277,10 @@ export function registerSemanticActions(): void {
       display_name: 'Delete Relationship',
       module_id: 'mod_semantic',
       verb: 'delete',
-      resource: 'mod_semantic:relationship',
+      resource: 'semantic_relationships',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:relationship.delete'],
+      required_permissions: ['semantic_relationships.delete'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -307,10 +307,10 @@ export function registerSemanticActions(): void {
       display_name: 'Create KPI',
       module_id: 'mod_semantic',
       verb: 'create',
-      resource: 'mod_semantic:kpi',
+      resource: 'semantic_kpis',
       input_schema: { type: 'object', required: ['name', 'formula'], properties: { name: { type: 'string' }, formula: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:kpi.create'],
+      required_permissions: ['semantic_kpis.create'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -333,10 +333,10 @@ export function registerSemanticActions(): void {
       display_name: 'Update KPI',
       module_id: 'mod_semantic',
       verb: 'update',
-      resource: 'mod_semantic:kpi',
+      resource: 'semantic_kpis',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:kpi.update'],
+      required_permissions: ['semantic_kpis.update'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {
@@ -359,10 +359,10 @@ export function registerSemanticActions(): void {
       display_name: 'Approve KPI',
       module_id: 'mod_semantic',
       verb: 'update',
-      resource: 'mod_semantic:kpi',
+      resource: 'semantic_kpis',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:kpi.approve'],
+      required_permissions: ['semantic_kpis.approve'],
       sensitivity: 'elevated',
     },
     async (input, ctx, sql) => {
@@ -385,10 +385,10 @@ export function registerSemanticActions(): void {
       display_name: 'Deprecate KPI',
       module_id: 'mod_semantic',
       verb: 'update',
-      resource: 'mod_semantic:kpi',
+      resource: 'semantic_kpis',
       input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:kpi.deprecate'],
+      required_permissions: ['semantic_kpis.deprecate'],
       sensitivity: 'elevated',
     },
     async (input, ctx, sql) => {
@@ -406,6 +406,216 @@ export function registerSemanticActions(): void {
   );
 
   /* ═══════════════════════════════════════════
+   * READ ACTIONS (via K3 for RBAC enforcement)
+   * ═══════════════════════════════════════════ */
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.model.list',
+      display_name: 'List Semantic Models',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_models',
+      input_schema: { type: 'object', properties: {} },
+      output_schema: {},
+      required_permissions: ['semantic_models.read'],
+      sensitivity: 'standard',
+    },
+    async (_input, ctx, sql) => {
+      const models = await svc.listModels(sql, ctx.tenantId);
+      return {
+        data: models,
+        object_id: null,
+        object_type: 'semantic_model',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.model.get',
+      display_name: 'Get Semantic Model',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_models',
+      input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
+      output_schema: {},
+      required_permissions: ['semantic_models.read'],
+      sensitivity: 'standard',
+    },
+    async (input, ctx, sql) => {
+      const { id } = input as { id: string };
+      const model = await svc.getModel(sql, id);
+      return {
+        data: model,
+        object_id: id,
+        object_type: 'semantic_model',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.dimension.list',
+      display_name: 'List Dimensions',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_models',
+      input_schema: { type: 'object', required: ['model_id'], properties: { model_id: { type: 'string' } } },
+      output_schema: {},
+      required_permissions: ['semantic_models.read'],
+      sensitivity: 'standard',
+    },
+    async (input, _ctx, sql) => {
+      const { model_id } = input as { model_id: string };
+      const dims = await svc.listDimensions(sql, model_id);
+      return {
+        data: dims,
+        object_id: model_id,
+        object_type: 'semantic_dimension',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.fact.list',
+      display_name: 'List Facts',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_models',
+      input_schema: { type: 'object', required: ['model_id'], properties: { model_id: { type: 'string' } } },
+      output_schema: {},
+      required_permissions: ['semantic_models.read'],
+      sensitivity: 'standard',
+    },
+    async (input, _ctx, sql) => {
+      const { model_id } = input as { model_id: string };
+      const facts = await svc.listFacts(sql, model_id);
+      return {
+        data: facts,
+        object_id: model_id,
+        object_type: 'semantic_fact',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.relationship.list',
+      display_name: 'List Relationships',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_models',
+      input_schema: { type: 'object', required: ['model_id'], properties: { model_id: { type: 'string' } } },
+      output_schema: {},
+      required_permissions: ['semantic_models.read'],
+      sensitivity: 'standard',
+    },
+    async (input, _ctx, sql) => {
+      const { model_id } = input as { model_id: string };
+      const rels = await svc.listRelationships(sql, model_id);
+      return {
+        data: rels,
+        object_id: model_id,
+        object_type: 'semantic_relationship',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.kpi.list',
+      display_name: 'List KPIs',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_kpis',
+      input_schema: { type: 'object', properties: {} },
+      output_schema: {},
+      required_permissions: ['semantic_kpis.read'],
+      sensitivity: 'standard',
+    },
+    async (_input, ctx, sql) => {
+      const kpis = await svc.listKpis(sql, ctx.tenantId);
+      return {
+        data: kpis,
+        object_id: null,
+        object_type: 'kpi',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.kpi.get',
+      display_name: 'Get KPI',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_kpis',
+      input_schema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
+      output_schema: {},
+      required_permissions: ['semantic_kpis.read'],
+      sensitivity: 'standard',
+    },
+    async (input, _ctx, sql) => {
+      const { id } = input as { id: string };
+      const kpi = await svc.getKpi(sql, id);
+      return {
+        data: kpi,
+        object_id: id,
+        object_type: 'kpi',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  actionRegistry.registerAction(
+    {
+      action_id: 'rasid.mod.semantic.kpi.versions',
+      display_name: 'List KPI Versions',
+      module_id: 'mod_semantic',
+      verb: 'read',
+      resource: 'semantic_kpis',
+      input_schema: { type: 'object', required: ['kpi_id'], properties: { kpi_id: { type: 'string' } } },
+      output_schema: {},
+      required_permissions: ['semantic_kpis.read'],
+      sensitivity: 'standard',
+    },
+    async (input, _ctx, sql) => {
+      const { kpi_id } = input as { kpi_id: string };
+      const versions = await svc.getKpiVersions(sql, kpi_id);
+      return {
+        data: versions,
+        object_id: kpi_id,
+        object_type: 'kpi',
+        before: null,
+        after: null,
+        event_type: null,
+      };
+    },
+  );
+
+  /* ═══════════════════════════════════════════
    * IMPACT PREVIEW (via K3 for audit trail)
    * ═══════════════════════════════════════════ */
 
@@ -415,10 +625,10 @@ export function registerSemanticActions(): void {
       display_name: 'Preview KPI Impact',
       module_id: 'mod_semantic',
       verb: 'read',
-      resource: 'mod_semantic:kpi',
+      resource: 'semantic_kpis',
       input_schema: { type: 'object', required: ['kpi_id'], properties: { kpi_id: { type: 'string' } } },
       output_schema: {},
-      required_permissions: ['mod_semantic:kpi.read'],
+      required_permissions: ['semantic_kpis.preview'],
       sensitivity: 'standard',
     },
     async (input, ctx, sql) => {

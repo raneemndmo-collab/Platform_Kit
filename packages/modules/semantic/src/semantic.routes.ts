@@ -1,14 +1,14 @@
 /**
  * M11 Semantic Model + KPI Hub -- Routes
  *
- * ALL mutations go through K3.executeAction().
- * READ operations call service directly.
+ * ALL endpoints (reads AND mutations) go through K3.executeAction().
+ * K3 pipeline enforces RBAC via required_permissions on every action.
+ * No endpoint relies on authMiddleware alone.
  * Schema: mod_semantic
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import type postgres from 'postgres';
-import { SemanticService } from './semantic.service.js';
 import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
 import { authMiddleware } from '../../../kernel/src/middleware/auth.middleware.js';
 import { tenantMiddleware, tenantCleanup } from '../../../kernel/src/middleware/tenant.middleware.js';
@@ -75,7 +75,6 @@ function handleError(err: unknown, request: FastifyRequest, reply: FastifyReply)
 }
 
 export async function semanticRoutes(app: FastifyInstance): Promise<void> {
-  const service = new SemanticService();
 
   app.addHook('onRequest', authMiddleware);
   app.addHook('onRequest', tenantMiddleware);
@@ -127,25 +126,26 @@ export async function semanticRoutes(app: FastifyInstance): Promise<void> {
   });
 
   /* ═══════════════════════════════════════════
-   * MODEL READS
+   * MODEL READS (via K3 for RBAC enforcement)
    * ═══════════════════════════════════════════ */
 
   app.get('/api/v1/semantic/models', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
       const ctx = buildRequestContext(request);
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const models = await service.listModels(reqSql, ctx.tenantId);
-      return reply.send({ data: models, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.model.list', {}, ctx, sql);
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
   app.get('/api/v1/semantic/models/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+      const ctx = buildRequestContext(request);
       const { id } = request.params as { id: string };
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const model = await service.getModel(reqSql, id);
-      if (!model) return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Model not found' }, meta: meta(request.id as string) });
-      return reply.send({ data: model, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.model.get', { id }, ctx, sql);
+      if (!result.data) return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Model not found' }, meta: meta(request.id as string) });
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
@@ -174,14 +174,15 @@ export async function semanticRoutes(app: FastifyInstance): Promise<void> {
     } catch (err) { return handleError(err, request, reply); }
   });
 
-  /* DIMENSION READS */
+  /* DIMENSION READS (via K3) */
 
   app.get('/api/v1/semantic/models/:modelId/dimensions', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+      const ctx = buildRequestContext(request);
       const { modelId } = request.params as { modelId: string };
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const dims = await service.listDimensions(reqSql, modelId);
-      return reply.send({ data: dims, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.dimension.list', { model_id: modelId }, ctx, sql);
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
@@ -210,14 +211,15 @@ export async function semanticRoutes(app: FastifyInstance): Promise<void> {
     } catch (err) { return handleError(err, request, reply); }
   });
 
-  /* FACT READS */
+  /* FACT READS (via K3) */
 
   app.get('/api/v1/semantic/models/:modelId/facts', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+      const ctx = buildRequestContext(request);
       const { modelId } = request.params as { modelId: string };
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const facts = await service.listFacts(reqSql, modelId);
-      return reply.send({ data: facts, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.fact.list', { model_id: modelId }, ctx, sql);
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
@@ -246,14 +248,15 @@ export async function semanticRoutes(app: FastifyInstance): Promise<void> {
     } catch (err) { return handleError(err, request, reply); }
   });
 
-  /* RELATIONSHIP READS */
+  /* RELATIONSHIP READS (via K3) */
 
   app.get('/api/v1/semantic/models/:modelId/relationships', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+      const ctx = buildRequestContext(request);
       const { modelId } = request.params as { modelId: string };
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const rels = await service.listRelationships(reqSql, modelId);
-      return reply.send({ data: rels, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.relationship.list', { model_id: modelId }, ctx, sql);
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
@@ -303,39 +306,41 @@ export async function semanticRoutes(app: FastifyInstance): Promise<void> {
   });
 
   /* ═══════════════════════════════════════════
-   * KPI READS
+   * KPI READS (via K3 for RBAC enforcement)
    * ═══════════════════════════════════════════ */
 
   app.get('/api/v1/semantic/kpis', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
       const ctx = buildRequestContext(request);
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const kpis = await service.listKpis(reqSql, ctx.tenantId);
-      return reply.send({ data: kpis, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.kpi.list', {}, ctx, sql);
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
   app.get('/api/v1/semantic/kpis/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+      const ctx = buildRequestContext(request);
       const { id } = request.params as { id: string };
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const kpi = await service.getKpi(reqSql, id);
-      if (!kpi) return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'KPI not found' }, meta: meta(request.id as string) });
-      return reply.send({ data: kpi, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.kpi.get', { id }, ctx, sql);
+      if (!result.data) return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'KPI not found' }, meta: meta(request.id as string) });
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
   app.get('/api/v1/semantic/kpis/:id/versions', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      const sql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
+      const ctx = buildRequestContext(request);
       const { id } = request.params as { id: string };
-      const reqSql = (request as FastifyRequest & { sql: postgres.ReservedSql }).sql;
-      const versions = await service.getKpiVersions(reqSql, id);
-      return reply.send({ data: versions, meta: meta(request.id as string) });
+      const result = await actionRegistry.executeAction('rasid.mod.semantic.kpi.versions', { kpi_id: id }, ctx, sql);
+      return reply.send({ data: result.data, meta: meta(request.id as string, { action_id: result.action_id, audit_id: result.audit_id }) });
     } catch (err) { return handleError(err, request, reply); }
   });
 
   /* ═══════════════════════════════════════════
-   * IMPACT PREVIEW (via K3 for audit trail)
+   * IMPACT PREVIEW (via K3 for audit trail + RBAC)
    * ═══════════════════════════════════════════ */
 
   app.get('/api/v1/semantic/kpis/:id/impact', async (request: FastifyRequest, reply: FastifyReply) => {
