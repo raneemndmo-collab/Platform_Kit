@@ -10,6 +10,8 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_connectors.custom_table_rows`;
+  await adminSql`DELETE FROM mod_connectors.custom_tables`;
   await adminSql`DELETE FROM kernel.notification_preferences`;
   await adminSql`DELETE FROM kernel.notifications`;
   await adminSql`DELETE FROM kernel.notification_templates`;
@@ -49,6 +51,8 @@ export async function reseed(): Promise<void> {
     ['notification_templates', 'create'], ['notification_templates', 'read'], ['notification_templates', 'update'], ['notification_templates', 'delete'],
     ['notifications', 'create'], ['notifications', 'read'], ['notifications', 'update'],
     ['notification_preferences', 'read'], ['notification_preferences', 'update'],
+    ['custom_tables', 'create'], ['custom_tables', 'read'], ['custom_tables', 'update'], ['custom_tables', 'delete'],
+    ['custom_table_rows', 'create'], ['custom_table_rows', 'read'], ['custom_table_rows', 'update'], ['custom_table_rows', 'delete'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
