@@ -25,6 +25,8 @@ import { registerFileManagerActions } from '../../modules/file-manager/src/file-
 import { fileManagerRoutes } from '../../modules/file-manager/src/file-manager.routes.js';
 import { registerReportsActions } from '../../modules/reports/src/reports.actions.js';
 import { reportsRoutes } from '../../modules/reports/src/reports.routes.js';
+import { registerCustomPagesActions } from '../../modules/custom-pages/src/custom-pages.actions.js';
+import { customPagesRoutes } from '../../modules/custom-pages/src/custom-pages.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -142,6 +144,7 @@ export async function buildServer() {
   registerDashboardActions();
   registerFileManagerActions();
   registerReportsActions();
+  registerCustomPagesActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -185,6 +188,9 @@ export async function buildServer() {
 
   // M10 — Reports Engine
   await app.register(reportsRoutes);
+
+  // M14 — Custom Pages
+  await app.register(customPagesRoutes);
 
   return app;
 }

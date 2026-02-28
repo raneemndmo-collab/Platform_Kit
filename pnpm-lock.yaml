@@ -104,6 +104,18 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/modules/custom-pages:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+      zod:
+        specifier: ^3.24.4
+        version: 3.25.76
+
   packages/modules/dashboard:
     dependencies:
       '@rasid/shared':
@@ -124,6 +136,9 @@ importers:
 
   packages/modules/reports:
     dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
