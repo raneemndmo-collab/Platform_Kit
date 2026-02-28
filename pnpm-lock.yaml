@@ -104,6 +104,19 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/modules/semantic:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
   packages/modules/sheetforge:
     dependencies:
       '@rasid/shared':

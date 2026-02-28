@@ -15,6 +15,8 @@ import { registerCustomTableActions } from '../../modules/connectors/src/custom-
 import { customTablesRoutes } from '../../modules/connectors/src/custom-tables.routes.js';
 import { registerSheetForgeActions } from '../../modules/sheetforge/src/sheetforge.actions.js';
 import { sheetForgeRoutes } from '../../modules/sheetforge/src/sheetforge.routes.js';
+import { registerSemanticActions } from '../../modules/semantic/src/semantic.actions.js';
+import { semanticRoutes } from '../../modules/semantic/src/semantic.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -127,6 +129,7 @@ export async function buildServer() {
   registerNotificationActions();
   registerCustomTableActions();
   registerSheetForgeActions();
+  registerSemanticActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -153,6 +156,9 @@ export async function buildServer() {
 
   // M8 — SheetForge (Data Connectors)
   await app.register(sheetForgeRoutes);
+
+  // M11 — Semantic Model + KPI Hub
+  await app.register(semanticRoutes);
 
   return app;
 }

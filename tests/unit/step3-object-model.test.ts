@@ -11,6 +11,12 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM mod_semantic.kpi_versions`;
+  await adminSql`DELETE FROM mod_semantic.relationships`;
+  await adminSql`DELETE FROM mod_semantic.facts`;
+  await adminSql`DELETE FROM mod_semantic.dimensions`;
+  await adminSql`DELETE FROM mod_semantic.kpis`;
+  await adminSql`DELETE FROM mod_semantic.models`;
   await adminSql`DELETE FROM mod_sheetforge.gap_analyses`;
   await adminSql`DELETE FROM mod_sheetforge.compositions`;
   await adminSql`DELETE FROM mod_sheetforge.sheets`;

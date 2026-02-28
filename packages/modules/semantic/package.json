@@ -1,0 +1,13 @@
+{
+  "name": "@rasid/mod-semantic",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@rasid/shared": "workspace:*",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
