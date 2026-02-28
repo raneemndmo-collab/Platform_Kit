@@ -1,6 +1,6 @@
 /**
  * Seed script — P0.12 Seed Data
- * Creates: 2 tenants, 15 permissions, 4 roles/tenant, 5 users, 1 object type
+ * Creates: 2 tenants, all permissions, 4 roles/tenant, 5 users, 1 object type
  * Run: pnpm db:seed
  */
 import 'dotenv/config';
@@ -37,13 +37,42 @@ async function seed(): Promise<void> {
   await adminSql`INSERT INTO kernel.tenants (id, name, slug) VALUES (${betaId}, 'Beta Industries', 'beta')`;
   console.log('[seed] Tenants created: acme, beta');
 
-  // ── Permissions (exactly 15 — S12) ──
+  // ── Permissions — ALL modules ──
+  // Kernel
   const permDefs: Array<[string, string]> = [
     ['users', 'create'], ['users', 'read'], ['users', 'update'], ['users', 'delete'],
     ['roles', 'create'], ['roles', 'read'], ['roles', 'update'], ['roles', 'delete'], ['roles', 'assign'],
     ['permissions', 'assign'],
     ['objects', 'create'], ['objects', 'read'], ['objects', 'update'], ['objects', 'delete'],
     ['audit', 'read'],
+    // K7 — Notification Router
+    ['notification_channels', 'create'], ['notification_channels', 'read'], ['notification_channels', 'update'], ['notification_channels', 'delete'],
+    ['notification_templates', 'create'], ['notification_templates', 'read'], ['notification_templates', 'update'], ['notification_templates', 'delete'],
+    ['notifications', 'create'], ['notifications', 'read'], ['notifications', 'update'],
+    ['notification_preferences', 'read'], ['notification_preferences', 'update'],
+    // M13 — Custom Tables (Data Studio)
+    ['custom_tables', 'create'], ['custom_tables', 'read'], ['custom_tables', 'update'], ['custom_tables', 'delete'],
+    ['custom_table_rows', 'create'], ['custom_table_rows', 'read'], ['custom_table_rows', 'update'], ['custom_table_rows', 'delete'],
+    // M8 — SheetForge (Data Connectors)
+    ['libraries', 'create'], ['libraries', 'read'], ['libraries', 'update'], ['libraries', 'delete'],
+    ['compositions', 'create'], ['compositions', 'read'], ['compositions', 'update'], ['compositions', 'delete'],
+    ['gap_analyses', 'create'], ['gap_analyses', 'read'],
+    // M11 — Semantic Model + KPI Hub
+    ['semantic_models', 'create'], ['semantic_models', 'read'], ['semantic_models', 'update'], ['semantic_models', 'delete'], ['semantic_models', 'publish'],
+    ['semantic_dimensions', 'create'], ['semantic_dimensions', 'delete'],
+    ['semantic_facts', 'create'], ['semantic_facts', 'delete'],
+    ['semantic_relationships', 'create'], ['semantic_relationships', 'delete'],
+    ['semantic_kpis', 'create'], ['semantic_kpis', 'read'], ['semantic_kpis', 'update'], ['semantic_kpis', 'approve'], ['semantic_kpis', 'deprecate'], ['semantic_kpis', 'preview'],
+    // M12 — Search Engine
+    ['search_index', 'create'], ['search_index', 'read'], ['search_index', 'delete'], ['search_index', 'reindex'],
+    ['search_synonyms', 'create'], ['search_synonyms', 'read'], ['search_synonyms', 'update'], ['search_synonyms', 'delete'],
+    ['search_analytics', 'read'],
+    // M9 — Dashboard Engine
+    ['dashboards', 'create'], ['dashboards', 'read'], ['dashboards', 'update'], ['dashboards', 'delete'], ['dashboards', 'publish'], ['dashboards', 'share'],
+    ['dashboard_widgets', 'create'], ['dashboard_widgets', 'read'], ['dashboard_widgets', 'update'], ['dashboard_widgets', 'delete'], ['dashboard_widgets', 'query'],
+    // M17 — File Manager
+    ['folders', 'create'], ['folders', 'read'], ['folders', 'update'], ['folders', 'delete'],
+    ['files', 'create'], ['files', 'read'], ['files', 'update'], ['files', 'delete'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
