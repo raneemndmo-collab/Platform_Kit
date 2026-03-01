@@ -10,6 +10,8 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_ai.proactive_suggestions`;
+  await adminSql`DELETE FROM mod_ai.proactive_rules`;
   await adminSql`DELETE FROM mod_ai.guardrail_evaluations`;
   await adminSql`DELETE FROM mod_ai.guardrail_rules`;
   await adminSql`DELETE FROM mod_ai.memory_entries`;
@@ -135,6 +137,9 @@ export async function reseed(): Promise<void> {
     // M21 — AI Engine (Step 6: Guardrails)
     ['ai_guardrail_rules', 'create'], ['ai_guardrail_rules', 'read'], ['ai_guardrail_rules', 'update'], ['ai_guardrail_rules', 'delete'],
     ['ai_guardrail_evaluations', 'read'],
+    // M21 — AI Engine (Step 7: Proactive Engine)
+    ['ai_proactive_rules', 'create'], ['ai_proactive_rules', 'read'], ['ai_proactive_rules', 'update'], ['ai_proactive_rules', 'delete'],
+    ['ai_proactive_suggestions', 'create'], ['ai_proactive_suggestions', 'read'], ['ai_proactive_suggestions', 'update'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

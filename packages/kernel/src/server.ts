@@ -43,6 +43,8 @@ import { registerMemoryActions } from '../../modules/ai-engine/src/memory.action
 import { memoryRoutes } from '../../modules/ai-engine/src/memory.routes.js';
 import { registerGuardrailsActions } from '../../modules/ai-engine/src/guardrails.actions.js';
 import { guardrailsRoutes } from '../../modules/ai-engine/src/guardrails.routes.js';
+import { registerProactiveActions } from '../../modules/ai-engine/src/proactive.actions.js';
+import { proactiveRoutes } from '../../modules/ai-engine/src/proactive.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -169,6 +171,7 @@ export async function buildServer() {
   registerRagActions();
   registerMemoryActions();
   registerGuardrailsActions();
+  registerProactiveActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -239,6 +242,9 @@ export async function buildServer() {
 
   // M21 — AI Engine (Step 6: Guardrails)
   await app.register(guardrailsRoutes);
+
+  // M21 — AI Engine (Step 7: Proactive Engine)
+  await app.register(proactiveRoutes);
 
   return app;
 }

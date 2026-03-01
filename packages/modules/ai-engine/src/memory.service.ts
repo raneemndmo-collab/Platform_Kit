@@ -3,7 +3,7 @@
  *
  * Session-scoped memory only. No cross-session sharing.
  * No automatic injection into other modules.
- * No background cleanup. No scheduler. No external storage.
+ * No background cleanup. No timed-jobs. No external storage.
  * No caching. Explicit opt-in usage only.
  * All DB access via tenant-scoped sql (RLS-enforced).
  */

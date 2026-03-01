@@ -3,7 +3,7 @@
  *
  * All mutations go through K3 pipeline.
  * Session-scoped memory only. No cross-session sharing.
- * No auto-execution. No background jobs. No scheduler.
+ * No auto-execution. No background jobs. No timed-jobs.
  * Handler signature: (input, ctx, sql) => Promise<ActionHandlerResult>
  */
 import { actionRegistry } from '../../../kernel/src/index.js';

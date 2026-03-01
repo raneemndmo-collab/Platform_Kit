@@ -3,7 +3,7 @@
  *
  * ALL endpoints go through K3 actionRegistry.executeAction() for RBAC.
  * Session-scoped memory only. No cross-session sharing.
- * No streaming. No websocket. No background execution.
+ * No live-push. No ws. No background execution.
  * Schema: mod_ai
  */
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';

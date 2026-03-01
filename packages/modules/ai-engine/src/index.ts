@@ -16,3 +16,6 @@ export { migrateModAiStep5 } from './migrate-step5.js';
 export { guardrailsRoutes } from './guardrails.routes.js';
 export { registerGuardrailsActions } from './guardrails.actions.js';
 export { migrateStep6 as migrateModAiStep6 } from './migrate-step6.js';
+export { proactiveRoutes } from './proactive.routes.js';
+export { registerProactiveActions } from './proactive.actions.js';
+export { migrateStep7 as migrateModAiStep7 } from './migrate-step7.js';
