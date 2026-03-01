@@ -7,7 +7,7 @@
  * Handler signature: (input, ctx, sql) => ActionHandlerResult
  * Schema: mod_forms
  */
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { FormsService } from './forms.service.js';
 import { ValidationError } from '@rasid/shared';
 import { createFormSchema, updateFormSchema, createSubmissionSchema } from './forms.schema.js';

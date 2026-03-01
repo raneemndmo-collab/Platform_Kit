@@ -7,7 +7,7 @@
  */
 
 import 'dotenv/config';
-import { adminSql } from '../../../kernel/src/db/connection.js';
+import { adminSql } from '../../../kernel/src/index.js';
 
 export async function migrateModFileManager(): Promise<void> {
   console.log('[M17] Running mod_file_manager migration...');

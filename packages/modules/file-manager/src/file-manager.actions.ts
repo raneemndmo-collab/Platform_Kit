@@ -7,7 +7,7 @@
  * Schema: mod_file_manager
  */
 
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { FileManagerService } from './file-manager.service.js';
 import { ValidationError } from '@rasid/shared';
 import {

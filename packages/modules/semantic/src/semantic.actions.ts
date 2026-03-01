@@ -5,7 +5,7 @@
  * Each handler returns ActionHandlerResult for audit + event pipeline.
  */
 
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { SemanticService } from './semantic.service.js';
 import type {
   CreateModelInput,

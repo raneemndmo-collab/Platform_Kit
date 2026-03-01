@@ -6,7 +6,7 @@
  * RLS policy for tenant isolation.
  * No cross-schema FK — dashboard/report IDs stored as plain strings in JSONB.
  */
-import { adminSql } from '../../../kernel/src/db/connection.js';
+import { adminSql } from '../../../kernel/src/index.js';
 
 export async function migrateModCustomPages(): Promise<void> {
   console.log('[M14] Running mod_custom_pages migration...');

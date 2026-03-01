@@ -6,7 +6,7 @@
  */
 
 import 'dotenv/config';
-import { adminSql } from '../../../kernel/src/db/connection.js';
+import { adminSql } from '../../../kernel/src/index.js';
 
 export async function migrateModConnectors(): Promise<void> {
   console.log('[M13] Running mod_connectors migration...');

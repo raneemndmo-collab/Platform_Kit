@@ -6,7 +6,7 @@
  * Handler signature: (input, ctx, sql) => ActionHandlerResult
  * Schema: mod_custom_pages
  */
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { CustomPagesService } from './custom-pages.service.js';
 import { ValidationError } from '@rasid/shared';
 import {

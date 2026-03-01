@@ -5,7 +5,7 @@
  * Each handler returns ActionHandlerResult for audit + event emission.
  */
 
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { SheetForgeService } from './sheetforge.service.js';
 import type {
   UploadLibraryInput,

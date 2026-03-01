@@ -4,7 +4,7 @@
  * No endpoint relies on authMiddleware alone.
  */
 
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { SearchService } from './search.service.js';
 import {
   searchQuerySchema,

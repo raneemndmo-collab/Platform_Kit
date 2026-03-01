@@ -7,7 +7,7 @@
  */
 
 import 'dotenv/config';
-import { adminSql } from '../../../kernel/src/db/connection.js';
+import { adminSql } from '../../../kernel/src/index.js';
 
 export async function migrateModDashboard(): Promise<void> {
   console.log('[M9] Running mod_dashboard migration...');
