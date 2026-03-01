@@ -7,13 +7,13 @@
  */
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import type postgres from 'postgres';
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
-import { authMiddleware } from '../../../kernel/src/middleware/auth.middleware.js';
 import {
+  actionRegistry,
+  authMiddleware,
   tenantMiddleware,
   tenantCleanup,
-} from '../../../kernel/src/middleware/tenant.middleware.js';
-import { buildRequestContext } from '../../../kernel/src/middleware/request-context.js';
+  buildRequestContext,
+} from '../../../kernel/src/index.js';
 import {
   ValidationError,
   PermissionDeniedError,

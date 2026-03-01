@@ -5,7 +5,7 @@
  * Tool invocation uses K3 executeAction internally.
  * No external LLM calls. Deterministic responses.
  */
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { aiEngineService as svc } from './ai-engine.service.js';
 import {
   createConversationSchema,

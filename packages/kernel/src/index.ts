@@ -1,6 +1,7 @@
 /**
- * Kernel public interface exports ONLY.
- * No implementations exported.
+ * Kernel public surface.
+ * Types, interfaces, singletons, and middleware used by modules.
+ * Modules MUST import from this file — never from internal paths.
  */
 
 // Re-export shared types
@@ -63,6 +64,8 @@ export type {
   ActionHandlerResult,
   ActionResult,
 } from './action-registry/action-registry.types.js';
+// K3 — Action Registry singleton
+export { actionRegistry } from './action-registry/action-registry.service.js';
 
 // K4 — Policy Engine interfaces
 export type { IPolicyEngine } from './policy/policy.interface.js';
@@ -141,3 +144,9 @@ export type {
   NotificationStatus,
   TemplateStatus as NotificationTemplateStatus,
 } from './notification-router/notification-router.types.js';
+
+// ─── Kernel runtime singletons & middleware (public surface for modules) ───
+export { adminSql } from './db/connection.js';
+export { authMiddleware } from './middleware/auth.middleware.js';
+export { tenantMiddleware, tenantCleanup } from './middleware/tenant.middleware.js';
+export { buildRequestContext } from './middleware/request-context.js';

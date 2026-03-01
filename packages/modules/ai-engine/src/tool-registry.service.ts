@@ -20,7 +20,7 @@ import type {
   ToolExample,
 } from './tool-registry.types.js';
 import { NotFoundError, ValidationError } from '@rasid/shared';
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 
 type Sql = postgres.Sql | postgres.ReservedSql;
 

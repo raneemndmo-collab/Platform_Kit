@@ -7,7 +7,7 @@
  * No cross-schema foreign keys.
  */
 import 'dotenv/config';
-import { adminSql } from '../../../kernel/src/db/connection.js';
+import { adminSql } from '../../../kernel/src/index.js';
 
 export async function migrateModAiEngine(): Promise<void> {
   console.log('[M21] Running mod_ai migration (Step 1: Core)...');

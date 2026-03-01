@@ -4,7 +4,7 @@
  * All mutations go through K3 pipeline.
  * No external calls. No LLM. No embeddings.
  */
-import { actionRegistry } from '../../../kernel/src/action-registry/action-registry.service.js';
+import { actionRegistry } from '../../../kernel/src/index.js';
 import { toolRegistryService as svc } from './tool-registry.service.js';
 import {
   createToolDefinitionSchema,

@@ -5,7 +5,7 @@
  * No cross-schema foreign keys. RLS-enabled.
  */
 import 'dotenv/config';
-import { adminSql } from '../../../kernel/src/db/connection.js';
+import { adminSql } from '../../../kernel/src/index.js';
 
 export async function migrateModAiStep2(): Promise<void> {
   console.log('[M21-S2] Running mod_ai migration (Step 2: Tool Registry)...');
