@@ -43,6 +43,8 @@ export default defineConfig({
         'tests/unit/step24-memory-layer.test.ts',
         'tests/unit/step25-guardrails.test.ts',
         'tests/unit/step26-proactive-engine.test.ts',
+        // Phase 5 — Enterprise Operations
+        'tests/unit/step27-observability.test.ts',
         // Setup verification (last — reads DB state)
         'tests/unit/step1-setup.test.ts',
       ],

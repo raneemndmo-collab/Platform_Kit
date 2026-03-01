@@ -45,6 +45,8 @@ import { registerGuardrailsActions } from '../../modules/ai-engine/src/guardrail
 import { guardrailsRoutes } from '../../modules/ai-engine/src/guardrails.routes.js';
 import { registerProactiveActions } from '../../modules/ai-engine/src/proactive.actions.js';
 import { proactiveRoutes } from '../../modules/ai-engine/src/proactive.routes.js';
+import { registerObservabilityActions } from '../../modules/observability/src/observability.actions.js';
+import { observabilityRoutes } from '../../modules/observability/src/observability.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -172,6 +174,7 @@ export async function buildServer() {
   registerMemoryActions();
   registerGuardrailsActions();
   registerProactiveActions();
+  registerObservabilityActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -245,6 +248,11 @@ export async function buildServer() {
 
   // M21 — AI Engine (Step 7: Proactive Engine)
   await app.register(proactiveRoutes);
+
+  // ── Phase 5 Modules ──
+
+  // M27 — Observability Layer
+  await app.register(observabilityRoutes);
 
   return app;
 }

@@ -11,6 +11,11 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM mod_observability.alert_history`;
+  await adminSql`DELETE FROM mod_observability.alerts`;
+  await adminSql`DELETE FROM mod_observability.slo_definitions`;
+  await adminSql`DELETE FROM mod_observability.status_incidents`;
+  await adminSql`DELETE FROM mod_observability.metrics`;
   await adminSql`DELETE FROM mod_ai.proactive_suggestions`;
   await adminSql`DELETE FROM mod_ai.proactive_rules`;
   await adminSql`DELETE FROM mod_ai.guardrail_evaluations`;

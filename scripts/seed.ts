@@ -107,6 +107,12 @@ async function seed(): Promise<void> {
     // M21 — AI Engine (Step 7: Proactive Engine)
     ['ai_proactive_rules', 'create'], ['ai_proactive_rules', 'read'], ['ai_proactive_rules', 'update'], ['ai_proactive_rules', 'delete'],
     ['ai_proactive_suggestions', 'create'], ['ai_proactive_suggestions', 'read'], ['ai_proactive_suggestions', 'update'],
+    // M27 — Observability Layer
+    ['obs_metrics', 'create'], ['obs_metrics', 'read'], ['obs_metrics', 'update'], ['obs_metrics', 'delete'],
+    ['obs_alerts', 'create'], ['obs_alerts', 'read'], ['obs_alerts', 'update'], ['obs_alerts', 'delete'],
+    ['obs_alert_history', 'create'], ['obs_alert_history', 'read'], ['obs_alert_history', 'update'],
+    ['obs_slos', 'create'], ['obs_slos', 'read'], ['obs_slos', 'update'], ['obs_slos', 'delete'],
+    ['obs_incidents', 'create'], ['obs_incidents', 'read'], ['obs_incidents', 'update'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
