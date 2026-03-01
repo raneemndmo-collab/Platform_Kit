@@ -721,3 +721,138 @@ describe('Rule Deletion', () => {
     expect(res.statusCode).toBe(404);
   });
 });
+
+
+// ═══════════════════════════════════════════
+// 16. FLAG VERDICT GUARANTEES
+// ═══════════════════════════════════════════
+
+describe('FLAG Verdict Guarantees', () => {
+
+  it('FLAG does not modify input payload — returned input_snapshot matches original', async () => {
+    const originalInput = { content: 'Show me the ssn records', extra: 42, nested: { a: 1 } };
+    const inputCopy = JSON.parse(JSON.stringify(originalInput));
+
+    const res = await app.inject({
+      method: 'POST', url: '/api/v1/ai/guardrails/evaluate',
+      headers: { authorization: `Bearer ${token}` },
+      payload: {
+        action_id: 'rasid.mod.ai.test.query',
+        input: originalInput,
+      },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json().data;
+    expect(data.verdict).toBe('flag');
+
+    // The input_snapshot logged must match the original — no mutation
+    const flagEval = data.evaluations.find((e: any) => e.verdict === 'flag');
+    expect(flagEval).toBeDefined();
+    expect(flagEval.input_snapshot).toEqual(inputCopy);
+
+    // The evaluate() return type has NO modified_input, NO rewritten_input,
+    // NO filtered_input field — only verdict + evaluations + blocked_by + blocked_message
+    expect(data).not.toHaveProperty('modified_input');
+    expect(data).not.toHaveProperty('rewritten_input');
+    expect(data).not.toHaveProperty('filtered_input');
+    expect(data).not.toHaveProperty('sanitized_input');
+  });
+
+  it('FLAG does not mutate action parameters — evaluate returns no parameter overrides', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/v1/ai/guardrails/evaluate',
+      headers: { authorization: `Bearer ${token}` },
+      payload: {
+        action_id: 'rasid.mod.ai.test.query',
+        input: { content: 'credit_card data here' },
+      },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json().data;
+    expect(data.verdict).toBe('flag');
+
+    // No action parameter overrides in response
+    expect(data).not.toHaveProperty('action_override');
+    expect(data).not.toHaveProperty('modified_action');
+    expect(data).not.toHaveProperty('replacement_action');
+    expect(data).not.toHaveProperty('parameters');
+    expect(data).not.toHaveProperty('modified_parameters');
+
+    // Response only contains: verdict, evaluations, optionally blocked_by/blocked_message
+    const keys = Object.keys(data);
+    for (const key of keys) {
+      expect(['verdict', 'evaluations', 'blocked_by', 'blocked_message']).toContain(key);
+    }
+  });
+
+  it('FLAG does not alter tool selection — no tool_id or tool_override in response', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/v1/ai/guardrails/evaluate',
+      headers: { authorization: `Bearer ${token}` },
+      payload: {
+        action_id: 'rasid.mod.ai.test.query',
+        input: { content: 'ssn lookup request' },
+      },
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json().data;
+    expect(data.verdict).toBe('flag');
+
+    // No tool selection alteration
+    expect(data).not.toHaveProperty('tool_id');
+    expect(data).not.toHaveProperty('tool_override');
+    expect(data).not.toHaveProperty('selected_tool');
+    expect(data).not.toHaveProperty('replacement_tool');
+
+    // Static analysis: guardrails.service.ts never references tool_definitions or tool_bindings
+    const svcSrc = fs.readFileSync(
+      'packages/modules/ai-engine/src/guardrails.service.ts', 'utf-8',
+    );
+    expect(svcSrc).not.toMatch(/tool_definitions|tool_bindings|tool_invocations/);
+    expect(svcSrc).not.toMatch(/toolService|ToolService|tool\.service/);
+  });
+
+  it('FLAG only logs and allows execution unchanged — static proof', () => {
+    const svcSrc = fs.readFileSync(
+      'packages/modules/ai-engine/src/guardrails.service.ts', 'utf-8',
+    );
+
+    // 1. evaluate() return type is GuardrailEvaluationResult which has no input mutation fields
+    //    Verify the function signature returns only { verdict, evaluations, blocked_by, blocked_message }
+    expect(svcSrc).toMatch(/return\s*\{\s*verdict:\s*finalVerdict/);
+
+    // 2. The sensitivity_flag branch returns { verdict: 'flag', message: rule.message }
+    //    It does NOT return any modified input
+    expect(svcSrc).toMatch(/return\s*\{\s*verdict:\s*'flag',\s*message:\s*rule\.message\s*\}/);
+
+    // 3. No assignment to input parameter — input is read-only
+    const code = svcSrc.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    // Check that 'input' parameter is never assigned to (input.xxx = or input = )
+    // input[field] access is read-only comparison (===), never assignment (=)
+    // Verify no input[...] = ... (write) patterns exist — exclude === and !==
+    const inputBracketAssigns = (code.match(/\binput\[[^\]]+\]\s*=[^=]/g) || [])
+      .filter(m => !m.includes('===') && !m.includes('!=='));
+    expect(inputBracketAssigns).toEqual([]); // no input[key] = value
+    // Verify no reassignment of input variable itself — exclude === and !==
+    const inputReassigns = (code.match(/\binput\s*=[^=]/g) || [])
+      .filter(m => !m.includes('===') && !m.includes('!=='));
+    expect(inputReassigns).toEqual([]); // no input = value
+
+    // 4. No mutation of any external state during FLAG
+    expect(code).not.toMatch(/globalThis\./);
+    expect(code).not.toMatch(/process\.env\.\w+\s*=/);
+
+    // 5. The evaluate function only does: read rules, evaluate, INSERT into evaluations log, return result
+    //    No UPDATE/DELETE on any other table during evaluation
+    const evalSection = svcSrc.slice(
+      svcSrc.indexOf('async evaluate('),
+      svcSrc.indexOf('async listEvaluations('),
+    );
+    expect(evalSection).not.toMatch(/UPDATE\s+/i);
+    expect(evalSection).not.toMatch(/DELETE\s+/i);
+    // Only INSERT is into guardrail_evaluations (the log table)
+    const insertMatches = evalSection.match(/INSERT INTO\s+[\w.]+/gi) || [];
+    expect(insertMatches.length).toBe(1);
+    expect(insertMatches[0]).toMatch(/guardrail_evaluations/);
+  });
+});
