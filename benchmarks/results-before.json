@@ -1,0 +1,630 @@
+{
+  "timestamp": "2026-03-01T08:37:46.147Z",
+  "environment": {
+    "nodeVersion": "v22.13.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpus": 6,
+    "totalMemoryMB": 3941
+  },
+  "benchmarks": [
+    {
+      "label": "K3 Read (100)",
+      "count": 100,
+      "p50": 4.89,
+      "p95": 6.74,
+      "p99": 9.5,
+      "min": 4.14,
+      "max": 10.32,
+      "mean": 5.15,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 194.2,
+      "totalMs": 515
+    },
+    {
+      "label": "K3 Read (1000)",
+      "count": 1000,
+      "p50": 4.05,
+      "p95": 5.71,
+      "p99": 7.96,
+      "min": 3.01,
+      "max": 10.34,
+      "mean": 4.27,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 234.2,
+      "totalMs": 4270
+    },
+    {
+      "label": "K3 Read (5000)",
+      "count": 5000,
+      "p50": 3.61,
+      "p95": 5.08,
+      "p99": 7.7,
+      "min": 2.65,
+      "max": 9.69,
+      "mean": 3.8,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 263,
+      "totalMs": 19013
+    },
+    {
+      "label": "K3 Write (100)",
+      "count": 100,
+      "p50": 7.77,
+      "p95": 10.28,
+      "p99": 12.27,
+      "min": 6.31,
+      "max": 12.63,
+      "mean": 7.99,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 125.2,
+      "totalMs": 799
+    },
+    {
+      "label": "K3 Write (1000)",
+      "count": 1000,
+      "p50": 7.81,
+      "p95": 10.89,
+      "p99": 13.23,
+      "min": 6.16,
+      "max": 15.71,
+      "mean": 8.13,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 123,
+      "totalMs": 8129
+    },
+    {
+      "label": "K3 Write (5000)",
+      "count": 5000,
+      "p50": 8.09,
+      "p95": 11.71,
+      "p99": 13.73,
+      "min": 5.99,
+      "max": 17.74,
+      "mean": 8.48,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 117.9,
+      "totalMs": 42398
+    },
+    {
+      "label": "Semantic (100 conc, 300 reqs)",
+      "count": 300,
+      "p50": 188.38,
+      "p95": 306.37,
+      "p99": 321.23,
+      "min": 87.91,
+      "max": 329.53,
+      "mean": 192.64,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 483.6,
+      "totalMs": 620
+    },
+    {
+      "label": "Semantic (500 conc, 1500 reqs)",
+      "count": 1500,
+      "p50": 911.72,
+      "p95": 1184.51,
+      "p99": 1314.02,
+      "min": 379.15,
+      "max": 1351.67,
+      "mean": 847.47,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 546.3,
+      "totalMs": 2746
+    },
+    {
+      "label": "Semantic (1000 conc, 3000 reqs)",
+      "count": 3000,
+      "p50": 1639.68,
+      "p95": 2261.71,
+      "p99": 2490.36,
+      "min": 723.41,
+      "max": 2533.94,
+      "mean": 1519.79,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 610,
+      "totalMs": 4918
+    },
+    {
+      "label": "Search FTS (100 conc, 300 reqs)",
+      "count": 300,
+      "p50": 192.06,
+      "p95": 312.05,
+      "p99": 332.81,
+      "min": 95.41,
+      "max": 337.52,
+      "mean": 195.35,
+      "errorRate": 100,
+      "errors": 300,
+      "rps": 475.4,
+      "totalMs": 631
+    },
+    {
+      "label": "Search FTS (500 conc, 1500 reqs)",
+      "count": 1500,
+      "p50": 973.39,
+      "p95": 1305.45,
+      "p99": 1419.16,
+      "min": 402.26,
+      "max": 1451.35,
+      "mean": 922.68,
+      "errorRate": 100,
+      "errors": 1500,
+      "rps": 476.7,
+      "totalMs": 3147
+    },
+    {
+      "label": "Search FTS (1000 conc, 3000 reqs)",
+      "count": 3000,
+      "p50": 2050.66,
+      "p95": 2646.07,
+      "p99": 2907.12,
+      "min": 827.64,
+      "max": 2972.22,
+      "mean": 1888.77,
+      "errorRate": 100,
+      "errors": 3000,
+      "rps": 481.2,
+      "totalMs": 6235
+    },
+    {
+      "label": "RAG Retrieve (100 conc, 300 reqs)",
+      "count": 300,
+      "p50": 201.32,
+      "p95": 257.57,
+      "p99": 284.76,
+      "min": 95.35,
+      "max": 296.81,
+      "mean": 186.29,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 492.7,
+      "totalMs": 609
+    },
+    {
+      "label": "RAG Retrieve (500 conc, 1500 reqs)",
+      "count": 1500,
+      "p50": 955.85,
+      "p95": 1201.76,
+      "p99": 1310.08,
+      "min": 386.7,
+      "max": 1355.05,
+      "mean": 868.75,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 529,
+      "totalMs": 2835
+    },
+    {
+      "label": "RAG Retrieve (1000 conc, 3000 reqs)",
+      "count": 3000,
+      "p50": 1896.86,
+      "p95": 2532.51,
+      "p99": 2766.4,
+      "min": 783.01,
+      "max": 2818.99,
+      "mean": 1718.12,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 534.6,
+      "totalMs": 5612
+    },
+    {
+      "label": "Memory Insert (100×500=50000)",
+      "count": 50000,
+      "p50": 202.04,
+      "p95": 233.52,
+      "p99": 252.53,
+      "min": 95.3,
+      "max": 338.21,
+      "mean": 204.58,
+      "errorRate": 0,
+      "errors": 0,
+      "rps": 488.6,
+      "totalMs": 102334
+    }
+  ],
+  "systemMetrics": {
+    "K3 Read (100)": {
+      "cpuUserUs": 449956,
+      "cpuSystemUs": 27311,
+      "rssStartMB": 149.6,
+      "rssEndMB": 152.4,
+      "heapStartMB": 36.6,
+      "heapEndMB": 43.5,
+      "rssDeltaMB": 2.8,
+      "heapDeltaMB": 6.9
+    },
+    "K3 Read (1000)": {
+      "cpuUserUs": 3387830,
+      "cpuSystemUs": 252165,
+      "rssStartMB": 152.4,
+      "rssEndMB": 176.8,
+      "heapStartMB": 43.5,
+      "heapEndMB": 44.6,
+      "rssDeltaMB": 24.4,
+      "heapDeltaMB": 1.1
+    },
+    "K3 Read (5000)": {
+      "cpuUserUs": 14196252,
+      "cpuSystemUs": 958127,
+      "rssStartMB": 176.8,
+      "rssEndMB": 163.7,
+      "heapStartMB": 44.6,
+      "heapEndMB": 54,
+      "rssDeltaMB": -13.1,
+      "heapDeltaMB": 9.4
+    },
+    "K3 Write (100)": {
+      "cpuUserUs": 648728,
+      "cpuSystemUs": 46440,
+      "rssStartMB": 163.7,
+      "rssEndMB": 163.8,
+      "heapStartMB": 54,
+      "heapEndMB": 43.1,
+      "rssDeltaMB": 0.1,
+      "heapDeltaMB": -11
+    },
+    "K3 Write (1000)": {
+      "cpuUserUs": 5871433,
+      "cpuSystemUs": 444137,
+      "rssStartMB": 163.8,
+      "rssEndMB": 163.5,
+      "heapStartMB": 43.1,
+      "heapEndMB": 47.2,
+      "rssDeltaMB": -0.2,
+      "heapDeltaMB": 4.1
+    },
+    "K3 Write (5000)": {
+      "cpuUserUs": 29615025,
+      "cpuSystemUs": 2489345,
+      "rssStartMB": 163.5,
+      "rssEndMB": 165.3,
+      "heapStartMB": 47.2,
+      "heapEndMB": 44,
+      "rssDeltaMB": 1.8,
+      "heapDeltaMB": -3.2
+    },
+    "Semantic (100 conc, 300 reqs)": {
+      "cpuUserUs": 761015,
+      "cpuSystemUs": 45592,
+      "rssStartMB": 165.3,
+      "rssEndMB": 164.1,
+      "heapStartMB": 44,
+      "heapEndMB": 36.5,
+      "rssDeltaMB": -1.2,
+      "heapDeltaMB": -7.5
+    },
+    "Semantic (500 conc, 1500 reqs)": {
+      "cpuUserUs": 3190781,
+      "cpuSystemUs": 244191,
+      "rssStartMB": 164.1,
+      "rssEndMB": 189.2,
+      "heapStartMB": 36.5,
+      "heapEndMB": 59.1,
+      "rssDeltaMB": 25.1,
+      "heapDeltaMB": 22.6
+    },
+    "Semantic (1000 conc, 3000 reqs)": {
+      "cpuUserUs": 5875496,
+      "cpuSystemUs": 342618,
+      "rssStartMB": 189.2,
+      "rssEndMB": 217.7,
+      "heapStartMB": 59.1,
+      "heapEndMB": 104.6,
+      "rssDeltaMB": 28.5,
+      "heapDeltaMB": 45.5
+    },
+    "Search FTS (100 conc, 300 reqs)": {
+      "cpuUserUs": 805114,
+      "cpuSystemUs": 40905,
+      "rssStartMB": 217.7,
+      "rssEndMB": 218.1,
+      "heapStartMB": 104.6,
+      "heapEndMB": 53.5,
+      "rssDeltaMB": 0.4,
+      "heapDeltaMB": -51.2
+    },
+    "Search FTS (500 conc, 1500 reqs)": {
+      "cpuUserUs": 3663063,
+      "cpuSystemUs": 275401,
+      "rssStartMB": 218.1,
+      "rssEndMB": 219.2,
+      "heapStartMB": 53.5,
+      "heapEndMB": 85.9,
+      "rssDeltaMB": 1.1,
+      "heapDeltaMB": 32.4
+    },
+    "Search FTS (1000 conc, 3000 reqs)": {
+      "cpuUserUs": 7399013,
+      "cpuSystemUs": 597912,
+      "rssStartMB": 219.2,
+      "rssEndMB": 222.1,
+      "heapStartMB": 85.9,
+      "heapEndMB": 68.8,
+      "rssDeltaMB": 2.9,
+      "heapDeltaMB": -17.1
+    },
+    "RAG Retrieve (100 conc, 300 reqs)": {
+      "cpuUserUs": 737056,
+      "cpuSystemUs": 47447,
+      "rssStartMB": 222.1,
+      "rssEndMB": 220.6,
+      "heapStartMB": 68.9,
+      "heapEndMB": 32.8,
+      "rssDeltaMB": -1.5,
+      "heapDeltaMB": -36
+    },
+    "RAG Retrieve (500 conc, 1500 reqs)": {
+      "cpuUserUs": 3350775,
+      "cpuSystemUs": 206147,
+      "rssStartMB": 220.6,
+      "rssEndMB": 220.4,
+      "heapStartMB": 32.8,
+      "heapEndMB": 50.8,
+      "rssDeltaMB": -0.2,
+      "heapDeltaMB": 18
+    },
+    "RAG Retrieve (1000 conc, 3000 reqs)": {
+      "cpuUserUs": 6719040,
+      "cpuSystemUs": 352502,
+      "rssStartMB": 220.4,
+      "rssEndMB": 222,
+      "heapStartMB": 50.8,
+      "heapEndMB": 33.9,
+      "rssDeltaMB": 1.6,
+      "heapDeltaMB": -17
+    },
+    "Memory Insert (100×500=50000)": {
+      "cpuUserUs": 119215826,
+      "cpuSystemUs": 9043797,
+      "rssStartMB": 221.6,
+      "rssEndMB": 224.9,
+      "heapStartMB": 39.9,
+      "heapEndMB": 59.7,
+      "rssDeltaMB": 3.4,
+      "heapDeltaMB": 19.8
+    }
+  },
+  "dbDiagnostics": {
+    "tableSizes": [
+      {
+        "table": "kernel.audit_log",
+        "size": "197 MB",
+        "rows": "321277"
+      },
+      {
+        "table": "mod_ai.memory_entries",
+        "size": "22 MB",
+        "rows": "49885"
+      },
+      {
+        "table": "kernel.role_permissions",
+        "size": "2320 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_billing.plans",
+        "size": "1424 kB",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.permissions",
+        "size": "592 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_ai.memory_sessions",
+        "size": "408 kB",
+        "rows": "203"
+      },
+      {
+        "table": "mod_ai.tool_definitions",
+        "size": "400 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_search.search_index",
+        "size": "136 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_ai.guardrail_evaluations",
+        "size": "120 kB",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.roles",
+        "size": "120 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_reports.report_runs",
+        "size": "112 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_file_manager.files",
+        "size": "96 kB",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.users",
+        "size": "96 kB",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.notifications",
+        "size": "96 kB",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.objects",
+        "size": "96 kB",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.lineage_edges",
+        "size": "88 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_ai.tool_bindings",
+        "size": "88 kB",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.design_themes",
+        "size": "80 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_ai.guardrail_rules",
+        "size": "80 kB",
+        "rows": "0"
+      },
+      {
+        "table": "mod_file_manager.folders",
+        "size": "80 kB",
+        "rows": "0"
+      }
+    ],
+    "seqScans": [
+      {
+        "table": "kernel.role_permissions",
+        "seqScan": "82623",
+        "idxScan": "200",
+        "seqPct": "99.8"
+      },
+      {
+        "table": "kernel.permissions",
+        "seqScan": "82723",
+        "idxScan": "240",
+        "seqPct": "99.7"
+      },
+      {
+        "table": "kernel.user_roles",
+        "seqScan": "82724",
+        "idxScan": "0",
+        "seqPct": "100.0"
+      },
+      {
+        "table": "mod_billing.plans",
+        "seqScan": "17095",
+        "idxScan": "1250",
+        "seqPct": "93.2"
+      },
+      {
+        "table": "mod_semantic.models",
+        "seqScan": "4800",
+        "idxScan": "0",
+        "seqPct": "100.0"
+      },
+      {
+        "table": "mod_ai.memory_entries",
+        "seqScan": "39",
+        "idxScan": "49816",
+        "seqPct": "0.1"
+      },
+      {
+        "table": "kernel.roles",
+        "seqScan": "1",
+        "idxScan": "2",
+        "seqPct": "33.3"
+      },
+      {
+        "table": "kernel.users",
+        "seqScan": "2",
+        "idxScan": "0",
+        "seqPct": "100.0"
+      },
+      {
+        "table": "kernel.tenants",
+        "seqScan": "1",
+        "idxScan": "0",
+        "seqPct": "100.0"
+      },
+      {
+        "table": "mod_backup.retention_policies",
+        "seqScan": "0",
+        "idxScan": "6115",
+        "seqPct": "0.0"
+      },
+      {
+        "table": "mod_ai.memory_sessions",
+        "seqScan": "0",
+        "idxScan": "49855",
+        "seqPct": "0.0"
+      },
+      {
+        "table": "mod_ai.rag_sources",
+        "seqScan": "4800",
+        "idxScan": "0",
+        "seqPct": "100.0"
+      },
+      {
+        "table": "mod_search.search_synonyms",
+        "seqScan": "4800",
+        "idxScan": "0",
+        "seqPct": "100.0"
+      }
+    ],
+    "slowQueries": [],
+    "cacheHitRatio": "99.98",
+    "tablesWithoutSecondaryIndexes": [
+      {
+        "table": "kernel.role_permissions",
+        "rows": "0"
+      },
+      {
+        "table": "mod_dashboard.shared_dashboards",
+        "rows": "0"
+      },
+      {
+        "table": "mod_custom_pages.pages",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.user_roles",
+        "rows": "0"
+      },
+      {
+        "table": "mod_dashboard.widgets",
+        "rows": "0"
+      },
+      {
+        "table": "mod_semantic.relationships",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.action_manifests",
+        "rows": "0"
+      },
+      {
+        "table": "mod_dashboard.dashboards",
+        "rows": "0"
+      },
+      {
+        "table": "mod_presentations.presentations",
+        "rows": "0"
+      },
+      {
+        "table": "mod_sheetforge.gap_analyses",
+        "rows": "0"
+      },
+      {
+        "table": "kernel.object_types",
+        "rows": "0"
+      }
+    ]
+  }
+}

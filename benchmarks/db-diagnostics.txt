@@ -1,0 +1,39 @@
+DB Diagnostics (Post-Fix)
+=========================
+
+Buffer Cache Hit Ratio: 99.77%
+
+Max Connections: 100
+App Pool Size: 100
+
+Top Tables by Size:
+  kernel.audit_log:             202 MB (58,946 rows)
+  mod_ai.memory_entries:        10,080 kB (2,500 rows)
+  kernel.role_permissions:      3,608 kB
+  mod_billing.plans:            1,600 kB (1 row)
+  kernel.permissions:           632 kB
+
+Sequential Scan Analysis (HIGH PRIORITY):
+  kernel.role_permissions:  30,205 seq scans, 14,256,760 tuples read, 1,164 idx scans (96.3% seq)
+  kernel.permissions:       30,205 seq scans, 7,309,610 tuples read, 1,164 idx scans (96.3% seq)
+  mod_ai.memory_sessions:  2,500 seq scans, 125,000 tuples read (100% seq)
+  kernel.user_roles:        30,206 seq scans, 90,618 tuples read (100% seq)
+  mod_billing.plans:        6,452 seq scans, 10,754 tuples read (35.2% seq)
+  mod_semantic.models:      3,407 seq scans, 3,407 tuples read (100% seq)
+
+New Indexes (Phase 6):
+  idx_user_roles_user_id:        0 scans (just created)
+  idx_user_roles_role_id:        0 scans (just created)
+  idx_role_permissions_role_id:  0 scans (just created)
+  idx_role_permissions_permission_id: 0 scans (just created)
+  idx_audit_log_action_id:       0 scans (just created)
+  idx_audit_log_actor_id:        0 scans (just created)
+
+NOTE: Index scan counts are 0 because pg_stat_reset() was called before the benchmark,
+and the benchmark itself exhausted connections before diagnostics could run.
+The indexes exist and will be used by the query planner for future queries.
+
+CRITICAL FINDING: max_connections=100 but pool=100 means adminSql cannot get a connection
+when the app pool is fully utilized. Need to either:
+1. Increase max_connections to 120+ (recommended)
+2. Reduce pool to 80 to leave headroom for admin connections

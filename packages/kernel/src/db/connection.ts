@@ -15,7 +15,7 @@ if (!adminUrl) {
 
 /** Application connection — NO BYPASSRLS */
 export const appSql = postgres(appUrl, {
-  max: 20,
+  max: 100,
   idle_timeout: 20,
   connect_timeout: 10,
 });

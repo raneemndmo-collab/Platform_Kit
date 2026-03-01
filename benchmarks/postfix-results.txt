@@ -1,0 +1,33 @@
+Phase 6 — Performance & Load Audit (Post-Fix) Results
+======================================================
+
+BENCHMARK 1: K3 executeAction latency (sequential)
+  K3 Read (100):  p50=4.14ms p95=6.30ms p99=7.65ms rps=224.8 err=0
+  K3 Read (1000): p50=3.27ms p95=4.41ms p99=6.59ms rps=291.7 err=0
+  K3 Read (5000): p50=4.28ms p95=5.88ms p99=8.38ms rps=224.0 err=0
+  K3 Write (100):  p50=9.19ms p95=10.44ms p99=15.74ms rps=105.8 err=0
+  K3 Write (1000): p50=9.44ms p95=12.26ms p99=15.24ms rps=102.6 err=0
+  K3 Write (5000): p50=9.28ms p95=12.22ms p99=15.28ms rps=104.9 err=0
+
+BENCHMARK 2: Semantic query path (concurrent)
+  Semantic (50 conc, 500 reqs):   p50=107.41ms p95=439.88ms p99=669.52ms rps=306.7 err%=0
+  Semantic (100 conc, 1000 reqs): p50=185.53ms p95=306.48ms p99=347.83ms rps=503.9 err%=3
+  Semantic (200 conc, 2000 reqs): p50=341.85ms p95=398.37ms p99=459.36ms rps=586.4 err%=3.15
+
+BENCHMARK 3: Search full-text query (concurrent)
+  Search FTS (50 conc, 500 reqs):   p50=305.17ms p95=324.74ms p99=350.67ms rps=162.7 err%=100
+  Search FTS (100 conc, 1000 reqs): p50=674.68ms p95=903.90ms p99=951.23ms rps=195.2 err%=100
+  Search FTS (200 conc, 2000 reqs): p50=1234.04ms p95=1324.80ms p99=1401.97ms rps=195.1 err%=100
+
+BENCHMARK 4: RAG retrieval path (concurrent)
+  RAG Retrieve (50 conc, 500 reqs):   p50=117.92ms p95=170.01ms p99=192.92ms rps=406.2 err%=0
+  RAG Retrieve (100 conc, 1000 reqs): p50=203.11ms p95=267.90ms p99=299.08ms rps=479.0 err%=2.1
+  RAG Retrieve (200 conc, 2000 reqs): p50=403.92ms p95=498.16ms p99=579.81ms rps=481.9 err%=2.25
+
+BENCHMARK 5: Memory session insert stress
+  Created 50 sessions
+  Memory Insert (50x50=2500): p50=141.91ms p95=188.28ms p99=208.85ms rps=349.7 err%=0
+
+NOTE: DB Diagnostics (Benchmark 6) failed due to connection pool exhaustion
+(pool=100 + adminSql exceeded PostgreSQL max_connections=100).
+This is itself a diagnostic finding.
