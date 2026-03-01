@@ -683,4 +683,245 @@ describe('M27 Observability Layer', () => {
       expect(res.statusCode).toBe(200);
     });
   });
+
+  /* ═══════════════════════════════════════════
+   * GUARANTEE 1: No Automatic Evaluation Loop for Alerts
+   * ═══════════════════════════════════════════ */
+
+  describe('Guarantee — No Automatic Alert Evaluation Loop', () => {
+    it('service has no loop constructs (while/for;;/setInterval/setTimeout)', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.service.ts', 'utf-8',
+      );
+      // Strip comments
+      const code = src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      expect(code).not.toMatch(/setInterval/);
+      expect(code).not.toMatch(/setTimeout/);
+      expect(code).not.toMatch(/while\s*\(/);
+      expect(code).not.toMatch(/for\s*\(\s*;\s*;/);
+      expect(code).not.toMatch(/requestAnimationFrame/);
+      expect(code).not.toMatch(/process\.nextTick/);
+    });
+
+    it('actions file has no loop constructs', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.actions.ts', 'utf-8',
+      );
+      const code = src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      expect(code).not.toMatch(/setInterval/);
+      expect(code).not.toMatch(/setTimeout/);
+      expect(code).not.toMatch(/while\s*\(/);
+      expect(code).not.toMatch(/for\s*\(\s*;\s*;/);
+    });
+
+    it('routes file has no loop constructs', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.routes.ts', 'utf-8',
+      );
+      const code = src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      expect(code).not.toMatch(/setInterval/);
+      expect(code).not.toMatch(/setTimeout/);
+      expect(code).not.toMatch(/while\s*\(/);
+      expect(code).not.toMatch(/for\s*\(\s*;\s*;/);
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+   * GUARANTEE 2: No Background Alert Condition Checking
+   * ═══════════════════════════════════════════ */
+
+  describe('Guarantee — No Background Alert Condition Checking', () => {
+    it('service does not import eventBus or subscribe to events', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.service.ts', 'utf-8',
+      );
+      expect(src).not.toMatch(/eventBus/);
+      expect(src).not.toMatch(/subscribe/);
+      expect(src).not.toMatch(/addEventListener/);
+      expect(src).not.toMatch(/\.on\(/);
+    });
+
+    it('service has no checkCondition or evaluateCondition method', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.service.ts', 'utf-8',
+      );
+      expect(src).not.toMatch(/checkCondition/);
+      expect(src).not.toMatch(/evaluateCondition/);
+      expect(src).not.toMatch(/evaluateAlert/);
+      expect(src).not.toMatch(/autoFire/);
+      expect(src).not.toMatch(/autoCheck/);
+    });
+
+    it('no background worker or daemon references in any source file', async () => {
+      const fs = await import('fs');
+      const files = [
+        'observability.service.ts',
+        'observability.actions.ts',
+        'observability.routes.ts',
+      ];
+      for (const f of files) {
+        const src = fs.readFileSync(`packages/modules/observability/src/${f}`, 'utf-8');
+        const code = src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+        expect(code).not.toMatch(/worker/);
+        expect(code).not.toMatch(/daemon/);
+        expect(code).not.toMatch(/background/);
+        expect(code).not.toMatch(/spawn/);
+        expect(code).not.toMatch(/fork/);
+      }
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+   * GUARANTEE 3: No Metric Polling Mechanism
+   * ═══════════════════════════════════════════ */
+
+  describe('Guarantee — No Metric Polling Mechanism', () => {
+    it('no polling, cron, or scheduled references in source files', async () => {
+      const fs = await import('fs');
+      const files = [
+        'observability.service.ts',
+        'observability.actions.ts',
+        'observability.routes.ts',
+        'observability.types.ts',
+        'observability.schema.ts',
+      ];
+      for (const f of files) {
+        const src = fs.readFileSync(`packages/modules/observability/src/${f}`, 'utf-8');
+        const code = src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+        expect(code).not.toMatch(/poll/i);
+        expect(code).not.toMatch(/cron/i);
+        expect(code).not.toMatch(/schedule/i);
+        expect(code).not.toMatch(/recurring/i);
+        expect(code).not.toMatch(/periodic/i);
+        expect(code).not.toMatch(/interval/i);
+      }
+    });
+
+    it('no external HTTP calls for metric collection', async () => {
+      const fs = await import('fs');
+      const files = [
+        'observability.service.ts',
+        'observability.actions.ts',
+        'observability.routes.ts',
+      ];
+      for (const f of files) {
+        const src = fs.readFileSync(`packages/modules/observability/src/${f}`, 'utf-8');
+        const code = src.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+        expect(code).not.toMatch(/fetch\(/);
+        expect(code).not.toMatch(/axios/);
+        expect(code).not.toMatch(/got\(/);
+        expect(code).not.toMatch(/https?:\/\//);
+      }
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+   * GUARANTEE 4: No Auto-Fire Without Explicit Action
+   * ═══════════════════════════════════════════ */
+
+  describe('Guarantee — No Auto-Fire Without Explicit Action', () => {
+    it('fireAlert is only callable via K3 action (rasid.mod.observability.alert.fire)', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.actions.ts', 'utf-8',
+      );
+      // fireAlert is called exactly once, inside the alert.fire action handler
+      const matches = src.match(/svc\.fireAlert/g);
+      expect(matches).not.toBeNull();
+      expect(matches!.length).toBe(1);
+    });
+
+    it('fireAlert is not called from routes directly (only via executeAction)', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.routes.ts', 'utf-8',
+      );
+      expect(src).not.toMatch(/fireAlert/);
+      expect(src).not.toMatch(/svc\.fireAlert/);
+    });
+
+    it('fireAlert is not called from any other module', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      // Recursively find all .ts files
+      function walkSync(dir: string): string[] {
+        let results: string[] = [];
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            if (entry.name === 'node_modules') continue;
+            results = results.concat(walkSync(full));
+          } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.test.ts')) {
+            results.push(full);
+          }
+        }
+        return results;
+      }
+      const allFiles = walkSync('packages');
+      const otherFiles = allFiles.filter(
+        (f: string) => !f.includes('modules/observability/'),
+      );
+      for (const f of otherFiles) {
+        const src = fs.readFileSync(f, 'utf-8');
+        expect(src).not.toMatch(/fireAlert/);
+      }
+    });
+
+    it('alert.fire action requires explicit POST with alert_id and value', async () => {
+      // Missing alert_id should fail
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/observability/alert-history/fire',
+        headers: auth(),
+        payload: { value: 99.5 },
+      });
+      // Should fail validation (400) or not found
+      expect([400, 500]).toContain(res.statusCode);
+    });
+  });
+
+  /* ═══════════════════════════════════════════
+   * GUARANTEE 5: No Scheduled SLO Evaluation
+   * ═══════════════════════════════════════════ */
+
+  describe('Guarantee — No Scheduled SLO Evaluation', () => {
+    it('service has only CRUD methods for SLOs (list, get, create, update, delete)', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.service.ts', 'utf-8',
+      );
+      // Extract all async method names
+      const methods = [...src.matchAll(/async\s+(\w+)\s*\(/g)].map(m => m[1]);
+      const sloMethods = methods.filter(m => m.toLowerCase().includes('slo'));
+      // Should only have CRUD: listSlos, getSlo, createSlo, updateSlo, deleteSlo
+      expect(sloMethods.sort()).toEqual(['createSlo', 'deleteSlo', 'getSlo', 'listSlos', 'updateSlo']);
+    });
+
+    it('no evaluateSlo, calculateSlo, or checkSlo method exists', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.service.ts', 'utf-8',
+      );
+      expect(src).not.toMatch(/evaluateSlo/);
+      expect(src).not.toMatch(/calculateSlo/);
+      expect(src).not.toMatch(/checkSlo/);
+      expect(src).not.toMatch(/sloCompliance/);
+      expect(src).not.toMatch(/errorBudget/);
+      expect(src).not.toMatch(/burnRate/);
+    });
+
+    it('SLO actions are CRUD-only (no evaluate/calculate action registered)', async () => {
+      const fs = await import('fs');
+      const src = fs.readFileSync(
+        'packages/modules/observability/src/observability.actions.ts', 'utf-8',
+      );
+      const sloActions = [...src.matchAll(/rasid\.mod\.observability\.slo\.(\w+)/g)].map(m => m[1]);
+      expect(sloActions.sort()).toEqual(['create', 'delete', 'list', 'update']);
+    });
+  });
 });
