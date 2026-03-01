@@ -1,0 +1,55 @@
+flowchart TD
+    A[Client Request] --> B[Fastify Route Handler]
+    B --> C{Auth Middleware<br/>JWT Validation}
+    C -->|401 Unauthorized| Z1[Reject: 401]
+    C -->|Valid Token| D{Tenant Middleware<br/>RLS Set}
+    D --> E[K3 executeAction]
+    E --> F{K4 Policy Engine<br/>RBAC Permission Check}
+    F -->|403 Forbidden| Z2[Reject: 403]
+    F -->|Permitted| G[Guardrails Evaluate]
+
+    subgraph Guardrails Layer
+        direction TB
+        G --> H[Load Active Rules<br/>Matching action_pattern]
+        H --> I{For Each Rule}
+        I --> J1[input_validation<br/>Check required fields<br/>Check max_length<br/>Check forbidden patterns]
+        I --> J2[sensitivity_flag<br/>Check input_contains<br/>Check match_any]
+        I --> J3[require_confirmation<br/>Check confirmation_token]
+        I --> J4[block<br/>Check condition match]
+
+        J1 -->|Fail| K1[Verdict: BLOCK<br/>Clear Error Message]
+        J1 -->|Pass| L[Next Rule]
+        J2 -->|Match| K2[Verdict: FLAG<br/>Logged Warning]
+        J2 -->|No Match| L
+        J3 -->|No Token| K3[Verdict: REQUIRE_CONFIRMATION<br/>Return Token Format]
+        J3 -->|Valid Token| L
+        J4 -->|Match| K4[Verdict: BLOCK<br/>Explicit Error]
+        J4 -->|No Match| L
+    end
+
+    K1 --> LOG[Log to guardrail_evaluations]
+    K2 --> LOG
+    K3 --> LOG
+    K4 --> LOG
+    L --> M{Final Verdict}
+
+    LOG --> M
+
+    M -->|BLOCK| Z3[Reject: Clear Error<br/>+ Audit Log via K3]
+    M -->|REQUIRE_CONFIRMATION| Z4[Return: Confirmation Required<br/>+ Audit Log via K3]
+    M -->|FLAG| N[Continue Execution<br/>+ Flag Logged<br/>+ Audit Log via K3]
+    M -->|PASS| N
+
+    N --> O[Action Handler Executes]
+    O --> P[Audit Log Written<br/>via K3 Pipeline]
+    P --> Q[Response to Client]
+
+    style A fill:#e1f5fe
+    style Z1 fill:#ffcdd2
+    style Z2 fill:#ffcdd2
+    style Z3 fill:#ffcdd2
+    style Z4 fill:#fff3e0
+    style K2 fill:#fff9c4
+    style N fill:#c8e6c9
+    style Q fill:#c8e6c9
+    style LOG fill:#e8eaf6

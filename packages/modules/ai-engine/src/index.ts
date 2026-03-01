@@ -13,3 +13,6 @@ export { migrateModAiStep4 } from './migrate-step4.js';
 export { memoryRoutes } from './memory.routes.js';
 export { registerMemoryActions } from './memory.actions.js';
 export { migrateModAiStep5 } from './migrate-step5.js';
+export { guardrailsRoutes } from './guardrails.routes.js';
+export { registerGuardrailsActions } from './guardrails.actions.js';
+export { migrateStep6 as migrateModAiStep6 } from './migrate-step6.js';

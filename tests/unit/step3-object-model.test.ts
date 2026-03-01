@@ -11,6 +11,8 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM mod_ai.guardrail_evaluations`;
+  await adminSql`DELETE FROM mod_ai.guardrail_rules`;
   await adminSql`DELETE FROM mod_ai.memory_entries`;
   await adminSql`DELETE FROM mod_ai.memory_sessions`;
   await adminSql`DELETE FROM mod_ai.rag_retrieval_logs`;
