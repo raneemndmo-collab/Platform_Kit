@@ -18,6 +18,7 @@ import type {
   AddMemoryEntryInput,
   ListMemoryEntriesInput,
 } from './memory.types.js';
+import { MAX_ENTRIES_PER_SESSION } from './memory.schema.js';
 
 class MemoryService {
 
@@ -209,11 +210,19 @@ class MemoryService {
       throw new ValidationError('Cannot add entries to a closed session');
     }
 
-    // Get next sequence number
+    // Get next sequence number + enforce max entries per session
     const seqRows = await sql`
-      SELECT COALESCE(MAX(seq), 0)::int AS max_seq FROM mod_ai.memory_entries
+      SELECT COALESCE(MAX(seq), 0)::int AS max_seq,
+             COUNT(*)::int AS entry_count
+      FROM mod_ai.memory_entries
       WHERE session_id = ${input.session_id} AND tenant_id = ${tenantId}
     `;
+    const entryCount = seqRows[0].entry_count;
+    if (entryCount >= MAX_ENTRIES_PER_SESSION) {
+      throw new ValidationError(
+        `Session has reached the maximum of ${MAX_ENTRIES_PER_SESSION} entries`,
+      );
+    }
     const nextSeq = seqRows[0].max_seq + 1;
 
     const id = uuidv7();

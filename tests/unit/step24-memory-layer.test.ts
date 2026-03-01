@@ -611,3 +611,196 @@ describe('Audit Trail', () => {
     expect(auditRows[0].status).toBe('success');
   });
 });
+
+// ═══════════════════════════════════════════
+// 11. PAYLOAD SIZE LIMITS
+// ═══════════════════════════════════════════
+
+describe('Payload Size Limits', () => {
+  let boundedSessionId: string;
+
+  beforeAll(async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/v1/ai/memory/sessions',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { label: 'Bounded Session' },
+    });
+    expect(res.statusCode).toBe(201);
+    boundedSessionId = res.json().data.id;
+  });
+
+  it('rejects entry.content exceeding 32 KB', async () => {
+    // Build a content object that exceeds 32 KB when serialized
+    const largeText = 'x'.repeat(33_000);
+    const res = await app.inject({
+      method: 'POST', url: `/api/v1/ai/memory/sessions/${boundedSessionId}/entries`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: { role: 'user', content: { text: largeText } },
+    });
+    expect(res.statusCode).toBeGreaterThanOrEqual(400);
+    expect(res.json().error).toMatch(/exceeds maximum size/i);
+  });
+
+  it('accepts entry.content within 32 KB', async () => {
+    const normalText = 'x'.repeat(1_000);
+    const res = await app.inject({
+      method: 'POST', url: `/api/v1/ai/memory/sessions/${boundedSessionId}/entries`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: { role: 'user', content: { text: normalText } },
+    });
+    expect(res.statusCode).toBe(201);
+  });
+
+  it('rejects session.metadata exceeding 8 KB', async () => {
+    const largeMetadata: Record<string, string> = {};
+    for (let i = 0; i < 200; i++) {
+      largeMetadata[`key_${i}`] = 'x'.repeat(50);
+    }
+    const res = await app.inject({
+      method: 'POST', url: '/api/v1/ai/memory/sessions',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { label: 'Big Meta', metadata: largeMetadata },
+    });
+    expect(res.statusCode).toBeGreaterThanOrEqual(400);
+    expect(res.json().error).toMatch(/exceeds maximum size/i);
+  });
+
+  it('accepts session.metadata within 8 KB', async () => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/v1/ai/memory/sessions',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { label: 'Small Meta', metadata: { key: 'value' } },
+    });
+    expect(res.statusCode).toBe(201);
+  });
+});
+
+// ═══════════════════════════════════════════
+// 12. NO AUTOMATIC RAG DUMP INTO MEMORY
+// ═══════════════════════════════════════════
+
+describe('No Automatic RAG Dump', () => {
+  it('RAG module source files do not reference memory service', () => {
+    const ragFiles = [
+      'packages/modules/ai-engine/src/rag.actions.ts',
+      'packages/modules/ai-engine/src/rag.routes.ts',
+      'packages/modules/ai-engine/src/rag.service.ts',
+    ];
+    for (const file of ragFiles) {
+      let src: string;
+      try {
+        src = fs.readFileSync(file, 'utf-8');
+      } catch {
+        continue; // file may not exist in some configurations
+      }
+      expect(src).not.toMatch(/memoryService|memory\.service|memory_entries|memory_sessions/);
+      expect(src).not.toMatch(/addEntry|createSession/);
+    }
+  });
+
+  it('Agent module source files do not reference memory service', () => {
+    const agentFiles = [
+      'packages/modules/ai-engine/src/agent.actions.ts',
+      'packages/modules/ai-engine/src/agent.routes.ts',
+      'packages/modules/ai-engine/src/agent.service.ts',
+    ];
+    for (const file of agentFiles) {
+      let src: string;
+      try {
+        src = fs.readFileSync(file, 'utf-8');
+      } catch {
+        continue;
+      }
+      expect(src).not.toMatch(/memoryService|memory\.service|memory_entries|memory_sessions/);
+      expect(src).not.toMatch(/addEntry|createSession/);
+    }
+  });
+
+  it('AI Engine core source files do not reference memory service', () => {
+    const coreFiles = [
+      'packages/modules/ai-engine/src/ai-engine.actions.ts',
+      'packages/modules/ai-engine/src/ai-engine.routes.ts',
+      'packages/modules/ai-engine/src/ai-engine.service.ts',
+    ];
+    for (const file of coreFiles) {
+      let src: string;
+      try {
+        src = fs.readFileSync(file, 'utf-8');
+      } catch {
+        continue;
+      }
+      expect(src).not.toMatch(/memoryService|memory\.service|memory_entries|memory_sessions/);
+      expect(src).not.toMatch(/addEntry|createSession/);
+    }
+  });
+});
+
+// ═══════════════════════════════════════════
+// 13. BOUNDED SESSION GROWTH (MAX ENTRIES)
+// ═══════════════════════════════════════════
+
+describe('Bounded Session Growth', () => {
+  it('MAX_ENTRIES_PER_SESSION constant is defined and equals 500', async () => {
+    const { MAX_ENTRIES_PER_SESSION } = await import(
+      '../../packages/modules/ai-engine/src/memory.schema.js'
+    );
+    expect(MAX_ENTRIES_PER_SESSION).toBe(500);
+  });
+
+  it('service enforces max entries check in addEntry', () => {
+    const src = fs.readFileSync(
+      'packages/modules/ai-engine/src/memory.service.ts', 'utf-8',
+    );
+    // Verify the guard exists in code
+    expect(src).toMatch(/MAX_ENTRIES_PER_SESSION/);
+    expect(src).toMatch(/entry_count/);
+    expect(src).toMatch(/Session has reached the maximum/);
+  });
+});
+
+// ═══════════════════════════════════════════
+// 14. ENTRIES ONLY VIA REGISTERED K3 ACTIONS
+// ═══════════════════════════════════════════
+
+describe('Entries Only Via K3 Actions', () => {
+  it('no direct INSERT into memory_entries outside service layer', () => {
+    // The only file that should INSERT into memory_entries is memory.service.ts
+    const files = fs.readdirSync('packages/modules/ai-engine/src')
+      .filter(f => f.endsWith('.ts') && !f.startsWith('memory.') && !f.startsWith('migrate-step5'));
+    for (const file of files) {
+      const src = fs.readFileSync(`packages/modules/ai-engine/src/${file}`, 'utf-8');
+      expect(src).not.toMatch(/INSERT\s+INTO\s+mod_ai\.memory_entries/i);
+    }
+  });
+
+  it('no direct INSERT into memory_sessions outside service layer', () => {
+    const files = fs.readdirSync('packages/modules/ai-engine/src')
+      .filter(f => f.endsWith('.ts') && !f.startsWith('memory.') && !f.startsWith('migrate-step5'));
+    for (const file of files) {
+      const src = fs.readFileSync(`packages/modules/ai-engine/src/${file}`, 'utf-8');
+      expect(src).not.toMatch(/INSERT\s+INTO\s+mod_ai\.memory_sessions/i);
+    }
+  });
+
+  it('memory.service.ts is the sole writer — imported only by memory.actions.ts', () => {
+    const files = fs.readdirSync('packages/modules/ai-engine/src')
+      .filter(f => f.endsWith('.ts') && f !== 'memory.actions.ts' && f !== 'memory.service.ts' && f !== 'index.ts');
+    for (const file of files) {
+      const src = fs.readFileSync(`packages/modules/ai-engine/src/${file}`, 'utf-8');
+      expect(src).not.toMatch(/from\s+['"]\.\/memory\.service/);
+    }
+  });
+
+  it('memory.actions.ts routes all writes through K3 actionRegistry', () => {
+    const src = fs.readFileSync(
+      'packages/modules/ai-engine/src/memory.actions.ts', 'utf-8',
+    );
+    // All handlers are registered via actionRegistry.registerAction
+    const registerCalls = (src.match(/actionRegistry\.registerAction\(/g) || []).length;
+    expect(registerCalls).toBe(7);
+    // No direct SQL in actions file
+    expect(src).not.toMatch(/INSERT\s+INTO/i);
+    expect(src).not.toMatch(/UPDATE\s+mod_ai/i);
+    expect(src).not.toMatch(/DELETE\s+FROM/i);
+  });
+});
