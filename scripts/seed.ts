@@ -89,6 +89,9 @@ async function seed(): Promise<void> {
     ['ai_conversations', 'create'], ['ai_conversations', 'read'], ['ai_conversations', 'update'], ['ai_conversations', 'delete'],
     ['ai_messages', 'create'], ['ai_messages', 'read'],
     ['ai_tool_invocations', 'create'], ['ai_tool_invocations', 'read'],
+    // M21 — AI Engine (Step 2: Tool Registry)
+    ['ai_tool_definitions', 'create'], ['ai_tool_definitions', 'read'], ['ai_tool_definitions', 'update'], ['ai_tool_definitions', 'delete'],
+    ['ai_tool_bindings', 'create'], ['ai_tool_bindings', 'read'], ['ai_tool_bindings', 'delete'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

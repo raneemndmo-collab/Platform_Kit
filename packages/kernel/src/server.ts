@@ -33,6 +33,8 @@ import { registerFormsActions } from '../../modules/forms/src/forms.actions.js';
 import { formsRoutes } from '../../modules/forms/src/forms.routes.js';
 import { registerAiEngineActions } from '../../modules/ai-engine/src/ai-engine.actions.js';
 import { aiEngineRoutes } from '../../modules/ai-engine/src/ai-engine.routes.js';
+import { registerToolRegistryActions } from '../../modules/ai-engine/src/tool-registry.actions.js';
+import { toolRegistryRoutes } from '../../modules/ai-engine/src/tool-registry.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -154,6 +156,7 @@ export async function buildServer() {
   registerPresentationsActions();
   registerFormsActions();
   registerAiEngineActions();
+  registerToolRegistryActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -211,6 +214,9 @@ export async function buildServer() {
 
   // M21 — AI Engine (Step 1: Core)
   await app.register(aiEngineRoutes);
+
+  // M21 — AI Engine (Step 2: Tool Registry)
+  await app.register(toolRegistryRoutes);
 
   return app;
 }
