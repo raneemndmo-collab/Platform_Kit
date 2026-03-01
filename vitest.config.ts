@@ -50,6 +50,8 @@ export default defineConfig({
         'tests/unit/step30-billing.test.ts',
         'tests/unit/step31-localization.test.ts',
         'tests/unit/step32-dev-portal.test.ts',
+        // Tier X — Document Processing Cluster
+        'tests/unit/step33-dpc.test.ts',
         // Setup verification (last — reads DB state)
         'tests/unit/step1-setup.test.ts',
       ],

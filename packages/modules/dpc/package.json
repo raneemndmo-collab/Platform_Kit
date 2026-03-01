@@ -1,0 +1,11 @@
+{
+  "name": "@rasid/mod-dpc",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@rasid/kernel": "workspace:*",
+    "@rasid/shared": "workspace:*",
+    "zod": "^3.22.0"
+  }
+}

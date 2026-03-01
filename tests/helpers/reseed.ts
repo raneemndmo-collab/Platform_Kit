@@ -10,6 +10,11 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_dpc.capacity_snapshots`;
+  await adminSql`DELETE FROM mod_dpc.module_slots`;
+  await adminSql`DELETE FROM mod_dpc.job_priority_tiers`;
+  await adminSql`DELETE FROM mod_dpc.resource_quotas`;
+  await adminSql`DELETE FROM mod_dpc.node_pools`;
   await adminSql`DELETE FROM mod_dev_portal.webhooks`;
   await adminSql`DELETE FROM mod_dev_portal.doc_pages`;
   await adminSql`DELETE FROM mod_dev_portal.usage_logs`;
@@ -192,6 +197,12 @@ export async function reseed(): Promise<void> {
     ['portal_usage', 'create'], ['portal_usage', 'read'],
     ['portal_docs', 'create'], ['portal_docs', 'read'], ['portal_docs', 'update'], ['portal_docs', 'delete'],
     ['portal_webhooks', 'create'], ['portal_webhooks', 'read'], ['portal_webhooks', 'update'], ['portal_webhooks', 'delete'],
+    // DPC — Document Processing Cluster
+    ['dpc_node_pools', 'create'], ['dpc_node_pools', 'read'], ['dpc_node_pools', 'update'], ['dpc_node_pools', 'delete'],
+    ['dpc_resource_quotas', 'create'], ['dpc_resource_quotas', 'read'], ['dpc_resource_quotas', 'update'], ['dpc_resource_quotas', 'delete'],
+    ['dpc_job_priorities', 'create'], ['dpc_job_priorities', 'read'], ['dpc_job_priorities', 'update'], ['dpc_job_priorities', 'delete'],
+    ['dpc_module_slots', 'create'], ['dpc_module_slots', 'read'], ['dpc_module_slots', 'update'], ['dpc_module_slots', 'delete'],
+    ['dpc_capacity', 'create'], ['dpc_capacity', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

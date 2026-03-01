@@ -57,6 +57,8 @@ import { registerLocalizationActions } from '../../modules/localization/src/loca
 import { localizationRoutes } from '../../modules/localization/src/localization.routes.js';
 import { registerPortalActions } from '../../modules/dev-portal/src/portal.actions.js';
 import { portalRoutes } from '../../modules/dev-portal/src/portal.routes.js';
+import { registerDpcActions } from '../../modules/dpc/src/dpc.actions.js';
+import { dpcRoutes } from '../../modules/dpc/src/dpc.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -190,6 +192,7 @@ export async function buildServer() {
   registerBillingActions();
   registerLocalizationActions();
   registerPortalActions();
+  registerDpcActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -283,6 +286,11 @@ export async function buildServer() {
 
   // M32 — Developer Portal (Metadata Only)
   await app.register(portalRoutes);
+
+  // ── Tier X: Document Processing Cluster ──
+
+  // DPC — Document Processing Cluster Provisioning (Metadata Only)
+  await app.register(dpcRoutes);
 
   return app;
 }

@@ -1,0 +1,49 @@
+Tier X Architecture Notes (from v6.2)
+======================================
+
+STEP 0 — DPC Provisioning (Infrastructure Isolation)
+- DPC = Document Processing Cluster
+- Physical isolation from OLTP, AI inference, dashboard
+- DPC-CPU sub-pool + DPC-GPU sub-pool
+- Each D-module has: own database, own schema, own event namespace, own API surface
+- All D-modules are stateless workers
+- Priority queue system (P0-P4)
+- Memory/timeout governance per job
+
+D-Module Registry:
+  D1:  CDR Engine          → cdr_db (Tier 1)      → DPC
+  D2:  Layout Graph Engine → layout_db             → DPC
+  D3:  Visual Semantic     → vsm_db                → DPC-GPU
+  D4:  Conversion Orch.    → conversion_db         → DPC
+  D5:  Rendering Engine    → render_db             → DPC
+  D6:  Media Engine        → media_db              → DPC-GPU
+  D7:  Interaction Engine  → interaction_db        → DPC
+  D8:  Typography Engine   → typography_db         → DPC
+  D9:  Brand Enforcement   → brand_db              → DPC
+  D10: Translation/Dir.    → translation_db        → DPC-GPU
+  D11: Design Constraint   → constraint_db         → DPC
+  D12: Data Rebinding      → rebinding_db          → DPC
+  D13: Visual Drift Det.   → vdrift_db             → DPC
+
+DPC Provisioning for our project (metadata-driven, no actual infra):
+- Create mod_dpc schema in PostgreSQL
+- Tables: dpc_nodes, dpc_pools, dpc_resource_quotas, dpc_job_priorities
+- All metadata-only (no actual K8s, no actual cluster)
+- Each D-module gets its own schema (mod_d1, mod_d2, etc.)
+- RLS on all tables
+- All writes via K3
+- All policy via K4
+
+CONSTRAINTS (from user):
+- No modification to Kernel (K1-K10)
+- No modification to Modules (M1-M32)
+- No distributed systems, microservices, new infrastructure
+- No shared engines spanning D1-D13
+- No abstraction layers for future D-modules
+- Execute one D-module at a time
+- Each D-module isolated
+- No cross-D-module coupling unless explicitly defined
+- No anticipation of future abstraction
+- No dynamic plugin systems
+- No auto-registration
+- No scheduler, background worker, external providers
