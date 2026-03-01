@@ -1,0 +1,14 @@
+{
+  "name": "@rasid/mod-backup",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^3.23.0",
+    "postgres": "^3.4.0",
+    "@rasid/shared": "workspace:*"
+  }
+}

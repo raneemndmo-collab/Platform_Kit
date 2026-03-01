@@ -47,6 +47,16 @@ import { registerProactiveActions } from '../../modules/ai-engine/src/proactive.
 import { proactiveRoutes } from '../../modules/ai-engine/src/proactive.routes.js';
 import { registerObservabilityActions } from '../../modules/observability/src/observability.actions.js';
 import { observabilityRoutes } from '../../modules/observability/src/observability.routes.js';
+import { registerBackupActions } from '../../modules/backup/src/backup.actions.js';
+import { backupRoutes } from '../../modules/backup/src/backup.routes.js';
+import { registerGatewayActions } from '../../modules/api-gateway/src/gateway.actions.js';
+import { gatewayRoutes } from '../../modules/api-gateway/src/gateway.routes.js';
+import { registerBillingActions } from '../../modules/billing/src/billing.actions.js';
+import { billingRoutes } from '../../modules/billing/src/billing.routes.js';
+import { registerLocalizationActions } from '../../modules/localization/src/localization.actions.js';
+import { localizationRoutes } from '../../modules/localization/src/localization.routes.js';
+import { registerPortalActions } from '../../modules/dev-portal/src/portal.actions.js';
+import { portalRoutes } from '../../modules/dev-portal/src/portal.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -175,6 +185,11 @@ export async function buildServer() {
   registerGuardrailsActions();
   registerProactiveActions();
   registerObservabilityActions();
+  registerBackupActions();
+  registerGatewayActions();
+  registerBillingActions();
+  registerLocalizationActions();
+  registerPortalActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -253,6 +268,21 @@ export async function buildServer() {
 
   // M27 — Observability Layer
   await app.register(observabilityRoutes);
+
+  // M28 — Backup & Recovery (Metadata Only)
+  await app.register(backupRoutes);
+
+  // M29 — API Gateway Hardening (Metadata Only)
+  await app.register(gatewayRoutes);
+
+  // M30 — Billing / Licensing (Metadata Only)
+  await app.register(billingRoutes);
+
+  // M31 — Localization (Metadata Only)
+  await app.register(localizationRoutes);
+
+  // M32 — Developer Portal (Metadata Only)
+  await app.register(portalRoutes);
 
   return app;
 }

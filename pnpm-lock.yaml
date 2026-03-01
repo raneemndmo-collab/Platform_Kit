@@ -103,6 +103,42 @@ importers:
         specifier: ^3.23.0
         version: 3.25.76
 
+  packages/modules/api-gateway:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      postgres:
+        specifier: ^3.4.0
+        version: 3.4.8
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
+  packages/modules/backup:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      postgres:
+        specifier: ^3.4.0
+        version: 3.4.8
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
+  packages/modules/billing:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      postgres:
+        specifier: ^3.4.0
+        version: 3.4.8
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
   packages/modules/connectors:
     dependencies:
       '@rasid/shared':
@@ -134,6 +170,18 @@ importers:
         specifier: ^3.23.0
         version: 3.25.76
 
+  packages/modules/dev-portal:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      postgres:
+        specifier: ^3.4.0
+        version: 3.4.8
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
   packages/modules/file-manager:
     dependencies:
       '@rasid/shared':
@@ -153,6 +201,18 @@ importers:
         version: 11.1.0
       zod:
         specifier: ^3.24.4
+        version: 3.25.76
+
+  packages/modules/localization:
+    dependencies:
+      '@rasid/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      postgres:
+        specifier: ^3.4.0
+        version: 3.4.8
+      zod:
+        specifier: ^3.23.0
         version: 3.25.76
 
   packages/modules/observability:

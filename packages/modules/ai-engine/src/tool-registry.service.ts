@@ -296,6 +296,12 @@ export class ToolRegistryService {
       mod_presentations: 'content',
       mod_forms: 'content',
       mod_ai: 'ai',
+      mod_observability: 'administration',
+      mod_backup: 'administration',
+      mod_gateway: 'administration',
+      mod_billing: 'administration',
+      mod_l10n: 'content',
+      mod_portal: 'administration',
     };
     return map[moduleId] || 'general';
   }

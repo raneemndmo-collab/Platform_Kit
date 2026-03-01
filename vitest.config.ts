@@ -45,6 +45,11 @@ export default defineConfig({
         'tests/unit/step26-proactive-engine.test.ts',
         // Phase 5 — Enterprise Operations
         'tests/unit/step27-observability.test.ts',
+        'tests/unit/step28-backup.test.ts',
+        'tests/unit/step29-gateway.test.ts',
+        'tests/unit/step30-billing.test.ts',
+        'tests/unit/step31-localization.test.ts',
+        'tests/unit/step32-dev-portal.test.ts',
         // Setup verification (last — reads DB state)
         'tests/unit/step1-setup.test.ts',
       ],

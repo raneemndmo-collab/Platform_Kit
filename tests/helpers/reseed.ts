@@ -10,6 +10,24 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_dev_portal.webhooks`;
+  await adminSql`DELETE FROM mod_dev_portal.doc_pages`;
+  await adminSql`DELETE FROM mod_dev_portal.usage_logs`;
+  await adminSql`DELETE FROM mod_dev_portal.api_keys`;
+  await adminSql`DELETE FROM mod_localization.translations`;
+  await adminSql`DELETE FROM mod_localization.translation_keys`;
+  await adminSql`DELETE FROM mod_localization.languages`;
+  await adminSql`DELETE FROM mod_billing.subscriptions`;
+  await adminSql`DELETE FROM mod_billing.usage_records`;
+  await adminSql`DELETE FROM mod_billing.quota_configs`;
+  await adminSql`DELETE FROM mod_billing.feature_flags`;
+  await adminSql`DELETE FROM mod_billing.plans`;
+  await adminSql`DELETE FROM mod_gateway.rate_limit_configs`;
+  await adminSql`DELETE FROM mod_gateway.ip_allowlist`;
+  await adminSql`DELETE FROM mod_gateway.api_keys`;
+  await adminSql`DELETE FROM mod_backup.restore_points`;
+  await adminSql`DELETE FROM mod_backup.backup_jobs`;
+  await adminSql`DELETE FROM mod_backup.retention_policies`;
   await adminSql`DELETE FROM mod_observability.alert_history`;
   await adminSql`DELETE FROM mod_observability.alerts`;
   await adminSql`DELETE FROM mod_observability.slo_definitions`;
@@ -151,6 +169,29 @@ export async function reseed(): Promise<void> {
     ['obs_alert_history', 'create'], ['obs_alert_history', 'read'], ['obs_alert_history', 'update'],
     ['obs_slos', 'create'], ['obs_slos', 'read'], ['obs_slos', 'update'], ['obs_slos', 'delete'],
     ['obs_incidents', 'create'], ['obs_incidents', 'read'], ['obs_incidents', 'update'],
+    // M28 — Backup & Recovery
+    ['backup_policies', 'create'], ['backup_policies', 'read'], ['backup_policies', 'update'], ['backup_policies', 'delete'],
+    ['backup_jobs', 'create'], ['backup_jobs', 'read'], ['backup_jobs', 'update'], ['backup_jobs', 'delete'],
+    ['backup_restores', 'create'], ['backup_restores', 'read'], ['backup_restores', 'update'],
+    // M29 — API Gateway Hardening
+    ['gw_api_keys', 'create'], ['gw_api_keys', 'read'], ['gw_api_keys', 'update'], ['gw_api_keys', 'delete'],
+    ['gw_ip_allowlist', 'create'], ['gw_ip_allowlist', 'read'], ['gw_ip_allowlist', 'update'], ['gw_ip_allowlist', 'delete'],
+    ['gw_rate_limits', 'create'], ['gw_rate_limits', 'read'], ['gw_rate_limits', 'update'], ['gw_rate_limits', 'delete'],
+    // M30 — Billing / Licensing
+    ['billing_plans', 'create'], ['billing_plans', 'read'], ['billing_plans', 'update'], ['billing_plans', 'delete'],
+    ['billing_flags', 'create'], ['billing_flags', 'read'], ['billing_flags', 'update'], ['billing_flags', 'delete'],
+    ['billing_usage', 'create'], ['billing_usage', 'read'],
+    ['billing_quotas', 'create'], ['billing_quotas', 'read'], ['billing_quotas', 'update'], ['billing_quotas', 'delete'],
+    ['billing_subscriptions', 'create'], ['billing_subscriptions', 'read'], ['billing_subscriptions', 'update'],
+    // M31 — Localization
+    ['l10n_languages', 'create'], ['l10n_languages', 'read'], ['l10n_languages', 'update'], ['l10n_languages', 'delete'],
+    ['l10n_keys', 'create'], ['l10n_keys', 'read'], ['l10n_keys', 'update'], ['l10n_keys', 'delete'],
+    ['l10n_translations', 'create'], ['l10n_translations', 'read'], ['l10n_translations', 'update'], ['l10n_translations', 'delete'],
+    // M32 — Developer Portal
+    ['portal_keys', 'create'], ['portal_keys', 'read'], ['portal_keys', 'update'], ['portal_keys', 'delete'],
+    ['portal_usage', 'create'], ['portal_usage', 'read'],
+    ['portal_docs', 'create'], ['portal_docs', 'read'], ['portal_docs', 'update'], ['portal_docs', 'delete'],
+    ['portal_webhooks', 'create'], ['portal_webhooks', 'read'], ['portal_webhooks', 'update'], ['portal_webhooks', 'delete'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
