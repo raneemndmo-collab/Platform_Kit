@@ -7,3 +7,6 @@ export { migrateModAiStep2 } from './migrate-step2.js';
 export { agentRoutes } from './agent.routes.js';
 export { registerAgentActions } from './agent.actions.js';
 export { migrateModAiStep3 } from './migrate-step3.js';
+export { ragRoutes } from './rag.routes.js';
+export { registerRagActions } from './rag.actions.js';
+export { migrateModAiStep4 } from './migrate-step4.js';
