@@ -9,7 +9,7 @@
 import type postgres from 'postgres';
 import { v7 as uuidv7 } from 'uuid';
 import { NotFoundError, ValidationError } from '@rasid/shared';
-import { SearchService } from '../../../modules/search/src/search.service.js';
+import { SearchService } from '../../../modules/search/src/index.js';
 import type {
   RagSource,
   CreateRagSourceInput,
@@ -152,7 +152,7 @@ export class RagService {
       try {
         // SAVEPOINT protects the outer transaction if search fails (e.g. tsquery syntax error)
         await sql`SAVEPOINT rag_search`;
-        const searchResult = await searchService.search(sql, tenantId, {
+        const searchResult = await searchService.searchReadOnly(sql, tenantId, {
           q: input.query,
           module_id: source.module_id,
           object_type: source.object_type,

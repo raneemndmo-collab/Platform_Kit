@@ -18,8 +18,11 @@ import type {
 import type postgres from 'postgres';
 
 export interface ISearchService {
-  // Search
+  // Search (with analytics recording)
   search(sql: postgres.ReservedSql, tenantId: string, query: SearchQuery): Promise<SearchResult>;
+
+  // Search read-only (no analytics write — for use by other modules like RAG)
+  searchReadOnly(sql: postgres.ReservedSql, tenantId: string, query: SearchQuery): Promise<SearchResult>;
 
   // Index CRUD
   indexEntry(sql: postgres.ReservedSql, tenantId: string, userId: string, input: CreateIndexEntryInput): Promise<SearchIndexEntry>;

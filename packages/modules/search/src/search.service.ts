@@ -119,6 +119,85 @@ export class SearchService implements ISearchService {
   }
 
   /* ═══════════════════════════════════════════
+   * SEARCH READ-ONLY
+   * Pure read path for use by other modules (e.g. RAG).
+   * Same query logic as search() but does NOT write analytics.
+   * ═══════════════════════════════════════════ */
+
+  async searchReadOnly(sql: postgres.ReservedSql, tenantId: string, query: SearchQuery): Promise<SearchResult> {
+    const start = Date.now();
+    const limit = Math.min(query.limit || 20, 100);
+    const offset = query.offset || 0;
+    const q = query.q.trim();
+
+    if (!q) {
+      return { items: [], total: 0, query: q, took_ms: 0 };
+    }
+
+    // Expand query with synonyms from mod_search.search_synonyms
+    const synonymRows = await sql`
+      SELECT synonyms FROM mod_search.search_synonyms
+      WHERE tenant_id = ${tenantId}
+        AND term = ${q.toLowerCase()}
+    `;
+    const allTerms = [q];
+    if (synonymRows.length > 0) {
+      const syns = synonymRows[0].synonyms as string[];
+      allTerms.push(...syns);
+    }
+
+    // Build tsquery from all terms (OR logic for synonyms)
+    const tsQuery = allTerms.map(t => t.replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g, '').trim()).filter(Boolean).join(' | ');
+
+    if (!tsQuery) {
+      return { items: [], total: 0, query: q, took_ms: Date.now() - start };
+    }
+
+    // Count total matches
+    const countResult = await sql`
+      SELECT count(*)::int AS total
+      FROM mod_search.search_index
+      WHERE tenant_id = ${tenantId}
+        ${query.module_id ? sql`AND module_id = ${query.module_id}` : sql``}
+        ${query.object_type ? sql`AND object_type = ${query.object_type}` : sql``}
+        AND to_tsvector('english', title || ' ' || content) @@ to_tsquery('english', ${tsQuery})
+    `;
+    const total = countResult[0]?.total ?? 0;
+
+    // Fetch results with ranking
+    const rows = await sql`
+      SELECT *,
+        ts_rank(to_tsvector('english', title || ' ' || content), to_tsquery('english', ${tsQuery})) AS rank
+      FROM mod_search.search_index
+      WHERE tenant_id = ${tenantId}
+        ${query.module_id ? sql`AND module_id = ${query.module_id}` : sql``}
+        ${query.object_type ? sql`AND object_type = ${query.object_type}` : sql``}
+        AND to_tsvector('english', title || ' ' || content) @@ to_tsquery('english', ${tsQuery})
+      ORDER BY rank DESC, indexed_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const items = rows.map(r => ({
+      id: r.id as string,
+      tenant_id: r.tenant_id as string,
+      object_id: r.object_id as string,
+      object_type: r.object_type as string,
+      module_id: r.module_id as string,
+      title: r.title as string,
+      content: r.content as string,
+      metadata: r.metadata as Record<string, unknown>,
+      indexed_at: String(r.indexed_at),
+      updated_at: String(r.updated_at),
+    }));
+
+    const took_ms = Date.now() - start;
+
+    // NO analytics write — this is the read-only path
+
+    return { items, total, query: q, took_ms };
+  }
+
+  /* ═══════════════════════════════════════════
    * INDEX CRUD
    * Entries are added/removed via K3 actions only.
    * No background indexing. No scheduler.
