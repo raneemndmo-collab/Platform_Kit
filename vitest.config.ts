@@ -12,13 +12,38 @@ export default defineConfig({
     fileParallelism: false,
     sequence: {
       files: [
+        // Core kernel (must run first — seed data required)
         'tests/unit/step2-iam.test.ts',
         'tests/unit/step4-pipeline.test.ts',
         'tests/unit/step3-object-model.test.ts',
+        // Integration
         'tests/integration/p0-primary.test.ts',
         'tests/integration/p0-secondary.test.ts',
+        // Kernel extensions
         'tests/unit/step6-lineage.test.ts',
         'tests/unit/step7-semantic-layer.test.ts',
+        // Module tests (isolated, order-independent)
+        'tests/unit/step8-design-system.test.ts',
+        'tests/unit/step9-notification-router.test.ts',
+        'tests/unit/step10-custom-tables.test.ts',
+        'tests/unit/step11-sheetforge.test.ts',
+        'tests/unit/step12-semantic.test.ts',
+        'tests/unit/step13-search.test.ts',
+        'tests/unit/step14-dashboard.test.ts',
+        'tests/unit/step15-file-manager.test.ts',
+        'tests/unit/step16-reports.test.ts',
+        'tests/unit/step17-custom-pages.test.ts',
+        'tests/unit/step18-presentations.test.ts',
+        'tests/unit/step19-forms.test.ts',
+        // AI Engine
+        'tests/unit/step20-ai-engine.test.ts',
+        'tests/unit/step21-tool-registry.test.ts',
+        'tests/unit/step22-agent-framework.test.ts',
+        'tests/unit/step23-rag-engine.test.ts',
+        'tests/unit/step24-memory-layer.test.ts',
+        'tests/unit/step25-guardrails.test.ts',
+        'tests/unit/step26-proactive-engine.test.ts',
+        // Setup verification (last — reads DB state)
         'tests/unit/step1-setup.test.ts',
       ],
     },

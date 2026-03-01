@@ -214,8 +214,21 @@ describe('K7 Lineage Engine', () => {
 
   describe('Graph Traversal', () => {
     beforeAll(async () => {
-      // Build a chain: dataset-1 → metric-1 → report-1 → dashboard-1
-      // dataset-1 → metric-1 already exists from earlier test
+      // Build a SELF-CONTAINED chain: dataset-1 → metric-1 → report-1 → dashboard-1
+      // Each edge is created explicitly — no dependency on earlier tests.
+      // The POST endpoint is idempotent (duplicate = 201), so re-creating is safe.
+      await app.inject({
+        method: 'POST',
+        url: '/api/v1/lineage/edges',
+        headers: { authorization: `Bearer ${acmeAdminToken}` },
+        payload: {
+          source_id: 'dataset-1',
+          source_type: 'dataset',
+          target_id: 'metric-1',
+          target_type: 'metric',
+          relationship: 'derived_from',
+        },
+      });
       await app.inject({
         method: 'POST',
         url: '/api/v1/lineage/edges',
