@@ -98,6 +98,9 @@ async function seed(): Promise<void> {
     // M21 — AI Engine (Step 4: RAG Engine)
     ['ai_rag_sources', 'create'], ['ai_rag_sources', 'read'], ['ai_rag_sources', 'update'], ['ai_rag_sources', 'delete'],
     ['ai_rag_retrieval', 'create'], ['ai_rag_retrieval', 'read'],
+    // M21 — AI Engine (Step 5: Memory Layer)
+    ['ai_memory_sessions', 'create'], ['ai_memory_sessions', 'read'], ['ai_memory_sessions', 'update'], ['ai_memory_sessions', 'delete'],
+    ['ai_memory_entries', 'create'], ['ai_memory_entries', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {

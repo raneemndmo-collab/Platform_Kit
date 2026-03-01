@@ -10,3 +10,6 @@ export { migrateModAiStep3 } from './migrate-step3.js';
 export { ragRoutes } from './rag.routes.js';
 export { registerRagActions } from './rag.actions.js';
 export { migrateModAiStep4 } from './migrate-step4.js';
+export { memoryRoutes } from './memory.routes.js';
+export { registerMemoryActions } from './memory.actions.js';
+export { migrateModAiStep5 } from './migrate-step5.js';

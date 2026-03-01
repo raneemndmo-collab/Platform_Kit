@@ -11,6 +11,8 @@ let userId: string;
 
 beforeAll(async () => {
   // Clean all tables
+  await adminSql`DELETE FROM mod_ai.memory_entries`;
+  await adminSql`DELETE FROM mod_ai.memory_sessions`;
   await adminSql`DELETE FROM mod_ai.rag_retrieval_logs`;
   await adminSql`DELETE FROM mod_ai.rag_sources`;
   await adminSql`DELETE FROM mod_ai.agent_executions`;

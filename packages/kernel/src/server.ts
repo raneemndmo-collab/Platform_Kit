@@ -39,6 +39,8 @@ import { registerAgentActions } from '../../modules/ai-engine/src/agent.actions.
 import { agentRoutes } from '../../modules/ai-engine/src/agent.routes.js';
 import { registerRagActions } from '../../modules/ai-engine/src/rag.actions.js';
 import { ragRoutes } from '../../modules/ai-engine/src/rag.routes.js';
+import { registerMemoryActions } from '../../modules/ai-engine/src/memory.actions.js';
+import { memoryRoutes } from '../../modules/ai-engine/src/memory.routes.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -163,6 +165,7 @@ export async function buildServer() {
   registerToolRegistryActions();
   registerAgentActions();
   registerRagActions();
+  registerMemoryActions();
 
   // Object routes (JWT required, mutations via K3 pipeline)
   await app.register(objectRoutes);
@@ -227,6 +230,9 @@ export async function buildServer() {
   // M21 — AI Engine (Step 3: Agent Framework Core)
   await app.register(agentRoutes);
   await app.register(ragRoutes);
+
+  // M21 — AI Engine (Step 5: Memory Layer)
+  await app.register(memoryRoutes);
 
   return app;
 }

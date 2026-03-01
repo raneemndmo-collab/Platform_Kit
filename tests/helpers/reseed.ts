@@ -10,6 +10,8 @@ const SALT_ROUNDS = 10;
 
 export async function reseed(): Promise<void> {
   // Clean
+  await adminSql`DELETE FROM mod_ai.memory_entries`;
+  await adminSql`DELETE FROM mod_ai.memory_sessions`;
   await adminSql`DELETE FROM mod_ai.rag_retrieval_logs`;
   await adminSql`DELETE FROM mod_ai.rag_sources`;
   await adminSql`DELETE FROM mod_ai.agent_executions`;
@@ -125,6 +127,9 @@ export async function reseed(): Promise<void> {
     // M21 — AI Engine (Step 4: RAG Engine)
     ['ai_rag_sources', 'create'], ['ai_rag_sources', 'read'], ['ai_rag_sources', 'update'], ['ai_rag_sources', 'delete'],
     ['ai_rag_retrieval', 'create'], ['ai_rag_retrieval', 'read'],
+    // M21 — AI Engine (Step 5: Memory Layer)
+    ['ai_memory_sessions', 'create'], ['ai_memory_sessions', 'read'], ['ai_memory_sessions', 'update'], ['ai_memory_sessions', 'delete'],
+    ['ai_memory_entries', 'create'], ['ai_memory_entries', 'read'],
   ];
   const permIds: Record<string, string> = {};
   for (const [resource, action] of permDefs) {
