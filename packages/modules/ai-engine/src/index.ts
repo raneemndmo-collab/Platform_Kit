@@ -4,3 +4,6 @@ export { migrateModAiEngine } from './migrate.js';
 export { toolRegistryRoutes } from './tool-registry.routes.js';
 export { registerToolRegistryActions } from './tool-registry.actions.js';
 export { migrateModAiStep2 } from './migrate-step2.js';
+export { agentRoutes } from './agent.routes.js';
+export { registerAgentActions } from './agent.actions.js';
+export { migrateModAiStep3 } from './migrate-step3.js';
